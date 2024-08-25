@@ -71,14 +71,14 @@ class FirstFrame(ctk.CTkFrame):
 
         #todo: erstellen List im List mit der Werten
         werte_list = []
-        for werte in config['wert']['werte'].split(':'):
+        for werte in config['wert']['werte'].split(','):
             sub_list_wert = []
             sub_list_wert.append(werte)
             werte_list.append(sub_list_wert)                  #[['Smartphone'], ['Bildschirm'], ['Laptop'], ['Transponderchip']...]
 
         #todo: falsche Werten zum bestimmte Liste hinzu
         for wert_num in range(len(werte_list)):
-            for falsches_wert in config['wert'][werte_list[wert_num][0]].split(':'):         #[['Smartphone',...], ['Bildschirm',...], ['Laptop',...], ['Transponderchip',...],...]
+            for falsches_wert in config['wert'][werte_list[wert_num][0]].split(','):         #[['Smartphone',...], ['Bildschirm',...], ['Laptop',...], ['Transponderchip',...],...]
                 werte_list[wert_num].append(falsches_wert)         #[['Smartphone', 'handy'...], ['Bildschirm', 'monitor'...], ['Laptop','notebook'...], ['Transponderchip','chip'...]..]
 
         #todo: die Werte werden durch die richtigen ersetzt

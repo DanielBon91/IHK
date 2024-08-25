@@ -13,9 +13,9 @@ class App(ctk.CTk):
         # Fenster Größe und Position
         screen_width = self.winfo_screenwidth()
         screen_height = self.winfo_screenheight()
-        axe_x = (screen_width / 2) - (1410 / 2)
-        axe_y = (screen_height / 2) - (1200 / 2)
-        self.geometry(f"{1500}x{1200}+{int(axe_x)}+{int(axe_y)}")
+        axe_x = (screen_width / 2) - (1200 / 2)    # 1410
+        axe_y = (screen_height / 2) - (900 / 2)    # 1200
+        self.geometry(f"{1000}x{1000}+{int(axe_x)}+{int(axe_y)}")    #1500x1200
         self.grid_columnconfigure(0, weight=0)
         self.grid_columnconfigure(1, weight=2)
         self.grid_rowconfigure(0, weight=1)
