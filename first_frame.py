@@ -1,11 +1,10 @@
+import configparser
 import customtkinter as ctk
 from datetime import date
 from PIL import Image
-import configparser
 import sqlite3
 
-config = configparser.ConfigParser()
-config.read("config.ini", encoding='utf-8')
+
 date_today = date.today().strftime("%d.%m.%Y")
 class FirstFrame(ctk.CTkFrame):
 
@@ -18,12 +17,12 @@ class FirstFrame(ctk.CTkFrame):
         self.grid_columnconfigure(3, minsize=145)
         self.grid_rowconfigure(0, minsize=145)
 
-        # Images create
+        # Bilderstellung
         self.image_access = ctk.CTkImage(Image.open("images/access.png"), size=(70, 70))
         self.image_error_artikel = ctk.CTkImage(Image.open("images/error.png"), size=(30, 30))
         self.image_error_confirm = ctk.CTkImage(Image.open("images/error.png"), size=(50, 50))
 
-        # Labels create
+        # Labelserstellung
         self.artikel_label = ctk.CTkLabel(self, text="Artikel", font=ctk.CTkFont("Calibri", size=22, weight="bold"))
         self.artikel_label.grid(row=1, column=1, pady=15, sticky="w")
         self.hersteller_label = ctk.CTkLabel(self, text="Hersteller", font=ctk.CTkFont("Calibri", size=22, weight="bold"))
@@ -69,28 +68,40 @@ class FirstFrame(ctk.CTkFrame):
 
     def change_artikel(self, event):
 
-        #todo: erstellen List im List mit der Werten
+        """Diese Funktion soll dafür sorgen,
+        dass unsere Datenbank ordentlich aussieht und einheitliche Bezeichnungen für Waren hat.
+        Damit werden Fälle wie "Handy" und "Smartphone", "Laptop" und "Notebook" etc. vermieden.
+
+        Hier verwenden wir das Configparser-Modul,
+        um die .ini-Daten zu lesen und dann auf bequeme Weise Werte hinzuzufügen"""
+
+        config = configparser.ConfigParser()
+        config.read("config.ini", encoding="utf-8")
+
+        #Erstellen List im List mit der Werten
+
         werte_list = []
         for werte in config['wert']['werte'].split(','):
             sub_list_wert = []
             sub_list_wert.append(werte)
-            werte_list.append(sub_list_wert)                  #[['Smartphone'], ['Bildschirm'], ['Laptop'], ['Transponderchip']...]
+            werte_list.append(sub_list_wert)                         #[['Smartphone'], ['Bildschirm'], ['Laptop'], ['Transponderchip']...]
 
-        #todo: falsche Werten zum bestimmte Liste hinzu
+        # Falsche Werten zum bestimmte Liste hinzu
+
         for wert_num in range(len(werte_list)):
             for falsches_wert in config['wert'][werte_list[wert_num][0]].split(','):         #[['Smartphone',...], ['Bildschirm',...], ['Laptop',...], ['Transponderchip',...],...]
-                werte_list[wert_num].append(falsches_wert)         #[['Smartphone', 'handy'...], ['Bildschirm', 'monitor'...], ['Laptop','notebook'...], ['Transponderchip','chip'...]..]
+                werte_list[wert_num].append(falsches_wert)           #[['Smartphone', 'handy'...], ['Bildschirm', 'monitor'...], ['Laptop','notebook'...], ['Transponderchip','chip'...]..]
 
-        #todo: die Werte werden durch die richtigen ersetzt
+        # Die Werte werden durch die richtigen ersetzt
+
         for num, value_list in enumerate(werte_list):
-            for value in value_list:
-                if self.artikel_entry.get().lower() in value:
-                    self.artikel_entry.delete(0, "end")
-                    self.artikel_entry.insert(0, werte_list[num][0])
+            if self.artikel_entry.get().lower() in value_list:
+                self.artikel_entry.delete(0, "end")
+                self.artikel_entry.insert(0, werte_list[num][0])
 
     def first_frame_writing_data(self):
 
-        """Эта функция открывает базу данных и записывает в неё переданные значения"""
+        """Diese Funktion öffnet die Datenbank und speichert die übermittelten Werte darin ab"""
 
         if len(self.artikel_entry.get()) > 0:
 
@@ -108,14 +119,7 @@ class FirstFrame(ctk.CTkFrame):
             connection.commit()
             connection.close()
 
-            self.artikel_entry.delete(0, "end")
-            self.hersteller_entry.delete(0, "end")
-            self.model_entry.delete(0, "end")
-            self.sn_entry.delete(0, "end")
-            self.datum_entry.delete(0, "end")
-            self.datum_entry.insert(0, date_today)
-            self.bemerkung_entry.delete("0.0", "end")
-            self.label_access.grid(row=7, column=2, padx=(450,0), pady=(35, 0))
+            self.first_frame_clear_all()
 
         else:
             self.label_access.grid_forget()
@@ -131,6 +135,9 @@ class FirstFrame(ctk.CTkFrame):
         self.artikel_entry.bind("<KeyRelease>", label_delete)
 
     def first_frame_clear_all(self):
+
+        """Clear All taste"""
+
         self.artikel_entry.delete(0, "end")
         self.hersteller_entry.delete(0, "end")
         self.model_entry.delete(0, "end")

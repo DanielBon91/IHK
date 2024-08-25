@@ -13,7 +13,7 @@ class Table2(ctk.CTkFrame):
 
         self.image_rueckgabe = ctk.CTkImage(Image.open("images/rueckgabe.png"), size=(35, 35))
 
-        self.treeview_inventar = ctv.CustomTreeView(self, height=30, columns=(
+        self.treeview_inventar = ctv.CustomTreeView(self, height=21, columns=(
             "column1", "column2", "column3", "column4", "column5", "column6", "column7"))
 
         self.tree_scroll_invent = ctk.CTkScrollbar(self, command=self.treeview_inventar.yview)
@@ -54,56 +54,45 @@ class Table2(ctk.CTkFrame):
                                               font=ctk.CTkFont(size=21, weight="bold"),
                                               command=self.rueckgabe_fuction).grid(row=1, column=0, padx=40, pady=25, sticky="w")
 
-        self.search = ctk.CTkEntry(self, corner_radius=0, width=200)
+        self.search = ctk.CTkEntry(self, placeholder_text="Suchen...", corner_radius=7, width=200)
         self.search.grid(row=1, column=0, padx=15, pady=25)
         self.search.bind("<KeyRelease>", self.search_funktion_event)
 
-    ### Functions ###
     def sort_function(self, column, table, reverse=False):
         data = [(table.set(child, column), child) for child in table.get_children()]
         data.sort(reverse=reverse)
         for index, (val, child) in enumerate(data):
             table.move(child, '', index)
 
-        table.tag_configure("evenrow", background='gray95')
-        table.tag_configure("oddrow", background='white')
-        for i, item in enumerate(table.get_children()):
-            if i % 2 == 0:
-                table.item(item, tags=("evenrow",))
-            else:
-                table.item(item, tags=("oddrow",))
+        table.tag_configure("even", background='gray85')
+        table.tag_configure("odd", background='white')
+        for count, item in enumerate(table.get_children()):
+            tag = "even" if count % 2 == 0 else "odd"
+            table.item(item, tags=(tag))
 
     def second_table_function(self):
+
         self.grid(row=1, column=0, sticky="nsew", columnspan=3)
-        self.search.delete(0, "end")
 
         self.treeview_inventar.delete(*self.treeview_inventar.get_children())
         self.treeview_inventar.grid_forget()
 
-        self.treeview_inventar.tag_configure("oddrow", background="white")
-        self.treeview_inventar.tag_configure("evenrow", background="gray95")
+        self.treeview_inventar.tag_configure("odd", background="white")
+        self.treeview_inventar.tag_configure("even", background="gray85")
 
         connection = sqlite3.connect('my_database.db')
         cursor = connection.cursor()
 
-        table2_values = cursor.execute(f'''SELECT username, nachname, artikel, hersteller, model, sn, bemerkung 
-                                                           FROM inventur WHERE username != "lager"''')
+        records_sql = cursor.execute(f'''SELECT username, nachname, artikel, hersteller, model, sn, bemerkung 
+                                         FROM inventur
+                                         WHERE username != "lager" 
+                                         AND username LIKE "%{self.search.get()}%"''')
+        records = [row for row in records_sql]
 
-        table2_values_list = list(map(list, table2_values))
-
-        count = 0
-        for record in table2_values_list:
-            if count % 2 != 0:
-                self.treeview_inventar.insert("", "end", iid=count, text="",
-                                           values=(record[0], record[1], record[2], record[3], record[4], record[5], record[6]),
-                                           tags=("oddrow"))
-                count += 1
-
-            elif count % 2 == 0:
-                self.treeview_inventar.insert("", "end", iid=count, text="",
-                                           values=(record[0], record[1], record[2], record[3], record[4], record[5], record[6]),
-                                           tags=("evenrow"))
-                count += 1
+        for count, record in enumerate(records):
+            tag = "even" if count % 2 == 0 else "odd"
+            self.treeview_inventar.insert("", "end", iid=count, tags=(tag),
+                                       values=(record[0], record[1], record[2], record[3], record[4]))
 
         self.treeview_inventar.grid(row=0, column=0, sticky="nsew", pady=(35, 20), padx=40)
         self.sort_function("column1", self.treeview_inventar, False)
@@ -196,40 +185,5 @@ class Table2(ctk.CTkFrame):
 
         self.dialog_table2.destroy()
 
-        if self.search.get() == "":
-            self.second_table_function()
-        else:
-            self.search_function()
-
-    def search_function(self):
-
-        if self.search.get() == "":
-            self.second_table_function()
-        else:
-            self.treeview_inventar.delete(*self.treeview_inventar.get_children())
-
-            connection = sqlite3.connect('my_database.db')
-            cursor = connection.cursor()
-
-            records_sql = cursor.execute(f'''SELECT username, nachname, artikel, hersteller, model, sn, bemerkung FROM inventur
-                                             WHERE username != "lager" AND username LIKE "%{self.search.get()}%"''')
-            records = [row for row in records_sql]
-
-            self.treeview_inventar.tag_configure("oddrow", background="white")
-            self.treeview_inventar.tag_configure("evenrow", background="gray95")
-
-            count = 0
-            for record in records:
-                if count % 2 != 0:
-                    self.treeview_inventar.insert("", "end", iid=count, text="", values=(
-                        record[0], record[1], record[2], record[3], record[4], record[5], record[6]),
-                                                  tags=("oddrow"))
-                    count += 1
-                elif count % 2 == 0:
-                    self.treeview_inventar.insert("", "end", iid=count, text="", values=(
-                        record[0], record[1], record[2], record[3], record[4], record[5], record[6]),
-                                                  tags=("evenrow"))
-                    count += 1
-
     def search_funktion_event(self, e):
-        self.search_function()
+        self.second_table_function()

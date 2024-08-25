@@ -1,14 +1,13 @@
-import sqlite3
 import customtkinter as ctk
 import custom_treeview as ctv
-
+import sqlite3
 class Table1(ctk.CTkFrame):
 
     def __init__(self, master):
         super().__init__(master, fg_color="transparent")
         self.grid_columnconfigure(0, weight=1)
 
-        self.treeview_lager = ctv.CustomTreeView(self, height=35, columns=(
+        self.treeview_lager = ctv.CustomTreeView(self, height=25, columns=(
             "column1", "column2", "column3", "column4", "column5"))
 
         self.tree_scroll_lager = ctk.CTkScrollbar(self, command=self.treeview_lager.yview)
@@ -37,20 +36,17 @@ class Table1(ctk.CTkFrame):
 
         self.treeview_lager.bind("<Double-1>", self.clicker_table_1)
 
-    ### Functions ###
     def sort_function(self, column, table, reverse=False):
         data = [(table.set(child, column), child) for child in table.get_children()]
         data.sort(reverse=reverse)
         for index, (val, child) in enumerate(data):
             table.move(child, '', index)
 
-        table.tag_configure("evenrow", background='gray95')
-        table.tag_configure("oddrow", background='white')
-        for i, item in enumerate(table.get_children()):
-            if i % 2 == 0:
-                table.item(item, tags=("evenrow",))
-            else:
-                table.item(item, tags=("oddrow",))
+        table.tag_configure("even", background='gray85')
+        table.tag_configure("odd", background='white')
+        for count, item in enumerate(table.get_children()):
+            tag = "even" if count % 2 == 0 else "odd"
+            table.item(item, tags=(tag))
 
     def first_table_function(self):
         self.grid(row=1, column=0, sticky="nsew", columnspan=3)
@@ -58,30 +54,21 @@ class Table1(ctk.CTkFrame):
         self.treeview_lager.delete(*self.treeview_lager.get_children())
         self.treeview_lager.grid_forget()
 
-        self.treeview_lager.tag_configure("oddrow", background="white")
-        self.treeview_lager.tag_configure("evenrow", background="gray95")
+        self.treeview_lager.tag_configure("odd", background="white")
+        self.treeview_lager.tag_configure("even", background="gray85")
 
         connection = sqlite3.connect('my_database.db')
         cursor = connection.cursor()
-
         table1_values = cursor.execute(f'''SELECT artikel, hersteller, model, sn, bemerkung 
-                                           FROM inventur WHERE username = "lager"''')
+                                           FROM inventur 
+                                           WHERE username = "lager"''')
 
-        table1_values_list = list(map(list, table1_values))
+        table1_values_list = [row for row in table1_values]
 
-        count = 0
-        for record in table1_values_list:
-            if count % 2 != 0:
-                self.treeview_lager.insert("", "end", iid=count, text="",
-                                           values=(record[0], record[1], record[2], record[3], record[4]),
-                                           tags=("oddrow"))
-                count += 1
-
-            elif count % 2 == 0:
-                self.treeview_lager.insert("", "end", iid=count, text="",
-                                           values=(record[0], record[1], record[2], record[3], record[4]),
-                                           tags=("evenrow"))
-                count += 1
+        for count, record in enumerate(table1_values_list):
+            tag = "even" if count % 2 == 0 else "odd"
+            self.treeview_lager.insert("", "end", iid=count, tags=(tag),
+                                       values=(record[0], record[1], record[2], record[3], record[4]))
 
         self.treeview_lager.grid(row=0, column=0, sticky="nsew", pady=(35, 20), padx=40)
         self.sort_function("column1", self.treeview_lager, False)

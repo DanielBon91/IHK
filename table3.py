@@ -2,12 +2,7 @@ import sqlite3
 from tkinter import messagebox
 from tkinter.ttk import Style
 import customtkinter as ctk
-import configparser
-import openpyxl
 import custom_treeview as ctv
-
-config = configparser.ConfigParser()
-config.read("config.ini", encoding='utf-8')
 
 class Table3(ctk.CTkFrame):
 
@@ -18,7 +13,7 @@ class Table3(ctk.CTkFrame):
         self.style_treeview_style = Style()
         self.style_treeview_style.configure("Treeview", rowheight=25)
 
-        self.treeview_struktur = ctv.CustomTreeView(self, height=35, columns=(
+        self.treeview_struktur = ctv.CustomTreeView(self, height=25, columns=(
             "column1", "column2", "column3", "column4"))
 
         self.tree_scroll = ctk.CTkScrollbar(self, command=self.treeview_struktur.yview)
@@ -52,13 +47,11 @@ class Table3(ctk.CTkFrame):
         for index, (val, child) in enumerate(data):
             table.move(child, '', index)
 
-        table.tag_configure("evenrow", background='gray95')
-        table.tag_configure("oddrow", background='white')
-        for i, item in enumerate(table.get_children()):
-            if i % 2 == 0:
-                table.item(item, tags=("evenrow",))
-            else:
-                table.item(item, tags=("oddrow",))
+        table.tag_configure("even", background='gray85')
+        table.tag_configure("odd", background='white')
+        for count, item in enumerate(table.get_children()):
+            tag = "even" if count % 2 == 0 else "odd"
+            table.item(item, tags=(tag))
 
     def third_table_funktion(self):
 
@@ -67,29 +60,20 @@ class Table3(ctk.CTkFrame):
         self.treeview_struktur.delete(*self.treeview_struktur.get_children())
         self.treeview_struktur.grid_forget()
 
-        self.treeview_struktur.tag_configure("oddrow", background="white")
-        self.treeview_struktur.tag_configure("evenrow", background="gray95")
+        self.treeview_struktur.tag_configure("odd", background="white")
+        self.treeview_struktur.tag_configure("even", background="gray85")
 
         connection = sqlite3.connect('my_database.db')
         cursor = connection.cursor()
 
         table3_values = cursor.execute(f'''SELECT vorname, nachname, abteilung, vorgesetzer FROM users''')
 
-        table3_values_list = list(map(list, table3_values))
+        table3_values_list = [row for row in table3_values]
 
-        count = 0
-        for record in table3_values_list:
-            if count % 2 == 0:
-                self.treeview_struktur.insert(parent="", index="end", iid=count,
-                                              values=(record[0], record[1], record[2], record[3]),
-                                              tags=("evenrow",))
-
-            else:
-                self.treeview_struktur.insert(parent="", index="end", iid=count,
-                                              values=(record[0], record[1], record[2], record[3]),
-                                              tags=("oddrow",))
-            count += 1
-
+        for count, record in enumerate(table3_values_list):
+            tag = "even" if count % 2 == 0 else "odd"
+            self.treeview_struktur.insert("", "end", iid=count, tags=(tag),
+                                       values=(record[0], record[1], record[2], record[3]))
 
         self.treeview_struktur.grid(row=0, column=0, sticky="nsew", pady=(35, 20), padx=40)
         self.sort_function("column1", self.treeview_struktur, False)

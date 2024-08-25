@@ -16,14 +16,14 @@ class SecondFrame(ctk.CTkFrame):
         self.grid_columnconfigure(0, weight=1)
         self.grid_rowconfigure(0, weight=1)
 
-        # Images create
+        # Bilderstellung
         self.image_uebergabe = ctk.CTkImage(Image.open("images/uebergabe.png"), size=(35, 35))
         self.image_plus = ctk.CTkImage(Image.open("images/plus.png"), size=(35, 35))
         self.image_minus = ctk.CTkImage(Image.open("images/minus.png"), size=(35, 35))
         self.image_pfeil = ctk.CTkImage(Image.open("images/pfeil.png"), size=(35, 35))
         self.word = ctk.CTkImage(Image.open("images/word.png"), size=(35, 35))
 
-        # Create upper table
+        # Erstellung der oberen Tabelle
         self.lager_table = ctv.CustomTreeView(self, columns=("column1", "column2", "column3", "column4", "column5"))
         self.scrollbar_lager_table = ctk.CTkScrollbar(self, command=self.lager_table.yview)
         self.scrollbar_lager_table.grid(row=0, column=0, sticky="nse", padx=(0, 40), pady=(35, 20))
@@ -48,7 +48,7 @@ class SecondFrame(ctk.CTkFrame):
         self.lager_table.column("column5")
         self.lager_table.grid(row=0, column=0, sticky="nsew", pady=(35, 20), padx=40)
 
-        # Create bottom table
+        # Erstellung der unteren Tabelle
         self.empty_table = ctv.CustomTreeView(self, height=10,
                                               columns=("column1", "column2", "column3", "column4", "column5"))
         self.empty_table.heading("#0", text="")
@@ -71,7 +71,7 @@ class SecondFrame(ctk.CTkFrame):
         self.empty_table.column("column5")
         self.empty_table.grid(row=2, column=0, sticky="nsew", padx=40, pady=20)
 
-        # Button create
+        # Erstellung der Tasten
         self.zuweisen_button = ctk.CTkButton(self, text="Die Waren übergebe an...", width=350, height=80,
                                              state="disabled", image=self.image_uebergabe,
                                              command=self.uebergabe_function, corner_radius=7,
@@ -87,9 +87,7 @@ class SecondFrame(ctk.CTkFrame):
         self.lager_table.bind("<Double-1>", self.plus_click)
         self.empty_table.bind("<Double-1>", self.minus_click)
 
-
     def second_frame_lager_tabelle(self):
-
         self.grid(row=0, column=1, sticky="nsew")
 
         self.lager_table.delete(*self.lager_table.get_children())
@@ -100,19 +98,12 @@ class SecondFrame(ctk.CTkFrame):
 
         lager_daten_sql = cursor.execute(f'''SELECT artikel, hersteller, model, sn, bemerkung 
                                              FROM inventur WHERE username = "lager"''')
+        lager_daten_list = [row for row in lager_daten_sql]
 
-        sql_daten_list = list(map(list, lager_daten_sql.fetchall()))
-
-        count = 0
-        for record in sql_daten_list:
-            if count % 2 != 0:
-                self.lager_table.insert("", "end", iid=count, text="", values=(
-                    record[0], record[1], record[2], record[3], record[4]), tags=("even",))
-
-            elif count % 2 == 0:
-                self.lager_table.insert("", "end", iid=count, text="", values=(
-                    record[0], record[1], record[2], record[3], record[4]), tags=("odd",))
-            count += 1
+        for count, record in enumerate(lager_daten_list):
+            tag = "even" if count % 2 == 0 else "odd"
+            self.lager_table.insert("", "end", iid=count, tags=(tag),
+                                       values=(record[0], record[1], record[2], record[3], record[4]))
 
         self.lager_table.grid(row=0, column=0, sticky="nsew", pady=(35, 20), padx=40)
         self.sort_function("column1", self.lager_table, False)
@@ -123,25 +114,22 @@ class SecondFrame(ctk.CTkFrame):
         for index, (val, child) in enumerate(data):
             table.move(child, '', index)
 
-        table.tag_configure("even", background='gray95')
+        table.tag_configure("even", background='gray85')
         table.tag_configure("odd", background='white')
-
-        for i, item in enumerate(table.get_children()):
-            if i % 2 == 0:
-                table.item(item, tags=("even",))
-            else:
-                table.item(item, tags=("odd",))
+        for count, item in enumerate(table.get_children()):
+            tag = "even" if count % 2 == 0 else "odd"
+            table.item(item, tags=(tag))
 
     def plus_click(self, event):
         self.plus_function()
 
     def plus_function(self):
         for rows in self.lager_table.selection():
-            self.empty_table.insert("", "end", text="", values=(self.lager_table.item(rows, 'values')[0],
-                                                                self.lager_table.item(rows, 'values')[1],
-                                                                self.lager_table.item(rows, 'values')[2],
-                                                                self.lager_table.item(rows, 'values')[3],
-                                                                self.lager_table.item(rows, 'values')[4]))
+            self.empty_table.insert("", "end", values=(self.lager_table.item(rows, 'values')[0],
+                                                       self.lager_table.item(rows, 'values')[1],
+                                                       self.lager_table.item(rows, 'values')[2],
+                                                       self.lager_table.item(rows, 'values')[3],
+                                                       self.lager_table.item(rows, 'values')[4]))
             self.lager_table.delete(self.lager_table.selection()[0])
 
         if len(self.empty_table.get_children()) > 0:
@@ -180,17 +168,17 @@ class SecondFrame(ctk.CTkFrame):
         self.dialog_mitarbeiter_label_nachname.grid(row=0, column=1, sticky="w", padx=(35, 0), pady=15)
 
         mitarbeiter_list = cursor.execute(f'''SELECT DISTINCT vorname FROM users ORDER BY vorname''')
-        vorname_list = [row[0] for row in mitarbeiter_list.fetchall()]
+        vorname_list = [row[0] for row in mitarbeiter_list]
 
         self.dialog_mitarbeiter_box_vorname = ctk.CTkOptionMenu(self.dialog_mitarbeiter, width=200, values=vorname_list,
-                                                                          command=self.vorwahl_nachname,
-                                                                          font=ctk.CTkFont("Calibri", size=21, weight="bold"),
-                                                                          dropdown_font=ctk.CTkFont("Calibri", size=19, weight="bold"))
+                                                        command=self.vorwahl_nachname,
+                                                        font=ctk.CTkFont("Calibri", size=21, weight="bold"),
+                                                        dropdown_font=ctk.CTkFont("Calibri", size=19, weight="bold"))
         self.dialog_mitarbeiter_box_vorname.grid(row=1, column=0)
         self.dialog_mitarbeiter_box_vorname.set("Bitte auswählen")
         self.dialog_mitarbeiter_box_nachname = ctk.CTkOptionMenu(self.dialog_mitarbeiter, state="disabled",
-                                                                          width=200, font=ctk.CTkFont("Calibri", size=21, weight="bold"),
-                                                                          dropdown_font=ctk.CTkFont("Calibri", size=19, weight="bold"))
+                                                        width=200, font=ctk.CTkFont("Calibri", size=21, weight="bold"),
+                                                        dropdown_font=ctk.CTkFont("Calibri", size=19, weight="bold"))
         self.dialog_mitarbeiter_box_nachname.grid(row=1, column=1)
         self.dialog_mitarbeiter_box_nachname.set("Bitte auswählen")
 
@@ -204,7 +192,7 @@ class SecondFrame(ctk.CTkFrame):
 
         nachname = self.dialog_mitarbeiter_box_nachname.get()
         self.dialog_mitarbeiter_box_nachname.configure(values=nachname_list,
-                                                       command=lambda nachname_get = nachname: self.confirm_function(vorname, nachname_get))
+                    command=lambda nachname_get = nachname: self.confirm_function(vorname, nachname_get))
 
     def confirm_function(self, vorname, nachname):
         ctk.CTkLabel(self.dialog_mitarbeiter, font=ctk.CTkFont(size=25, weight="bold"),
@@ -214,23 +202,26 @@ class SecondFrame(ctk.CTkFrame):
         for row in self.empty_table.get_children():
             sofort_label = ' '.join(str(x) for x in self.empty_table.item(row)['values'][:4])
             ctk.CTkLabel(self.dialog_mitarbeiter, font=ctk.CTkFont(size=18),
-                         text=f"""- {sofort_label}""").grid(column=0, columnspan=2, sticky="w", padx=(75, 0))
+                         text=f"- {sofort_label}").grid(column=0, columnspan=2, sticky="w", padx=(75, 0))
 
         ctk.CTkLabel(self.dialog_mitarbeiter, text="Übergabedatum:",
-                     font=ctk.CTkFont(size=19, weight="bold")).grid(row=14, column=0, columnspan=3, sticky="w", padx=(60, 0), pady=20)
+        font=ctk.CTkFont(size=19, weight="bold")).grid(row=14, column=0, columnspan=3, sticky="w", padx=(60, 0), pady=20)
         self.data_entry = ctk.CTkEntry(self.dialog_mitarbeiter, height=35, placeholder_text="dd.mm.YYYY", font=ctk.CTkFont(size=19))
         self.data_entry.grid(row=14, column=0, sticky="w", padx=(230, 0), pady=20, columnspan=3)
-        self.data_get = ctk.CTkButton(self.dialog_mitarbeiter, width=45, text="", image=self.image_pfeil, command=lambda: self.button_active(self.data_entry.get()))
+        self.data_get = ctk.CTkButton(self.dialog_mitarbeiter, width=45, text="", image=self.image_pfeil,
+                                      command=lambda: self.button_active(self.data_entry.get()))
         self.data_get.grid(row=14, column=0, columnspan=3)
 
-        abteilung_info = cursor.execute(f'''SELECT abteilung, vorgesetzer FROM users WHERE vorname = "{vorname}" AND nachname = "{nachname}"''').fetchone()
+        abteilung_info = cursor.execute(f'''SELECT abteilung, vorgesetzer FROM users 
+                                            WHERE vorname = "{vorname}" 
+                                            AND nachname = "{nachname}"''').fetchone()
         abteilung = abteilung_info[0]
         chef = abteilung_info[1]
 
         self.top_level_confirm_button = ctk.CTkButton(self.dialog_mitarbeiter, width=200, height=45,
-                                                      text="Bestätigen", state="disabled",
-                                                      font=ctk.CTkFont(size=21, weight="bold"),
-                                                      command=lambda: self.bestaetigung_command(vorname, nachname, abteilung, chef))
+                                        text="Bestätigen", state="disabled",
+                                        font=ctk.CTkFont(size=21, weight="bold"),
+                                        command=lambda: self.bestaetigung_command(vorname, nachname, abteilung, chef))
         self.top_level_confirm_button.grid(row=15, column=0, columnspan=3, pady=45, sticky="s")
 
     def button_active(self, date):
@@ -245,18 +236,17 @@ class SecondFrame(ctk.CTkFrame):
                                 'abteilung': abteilung,
                                 'chef': chef}
         for value in self.empty_table.get_children():
-
             artikel = self.empty_table.item(value)['values'][0]
             hersteller = self.empty_table.item(value)['values'][1]
             model = self.empty_table.item(value)['values'][2]
             seriennummer = self.empty_table.item(value)['values'][3]
 
-            confirm = cursor.execute(f'''UPDATE inventur 
-                                         SET username =  "{vorname}", nachname = "{nachname}"
-                                         WHERE artikel = "{artikel}" AND
-                                               hersteller = "{hersteller}" AND
-                                               model = "{str(model)}" AND
-                                               sn = "{str(seriennummer)}"''')
+            cursor.execute(f'''UPDATE inventur 
+                               SET username =  "{vorname}", nachname = "{nachname}"
+                               WHERE artikel = "{artikel}" 
+                               AND hersteller = "{hersteller}" 
+                               AND model = "{str(model)}" 
+                               AND sn = "{str(seriennummer)}"''')
 
             connection.commit()
 
@@ -267,11 +257,13 @@ class SecondFrame(ctk.CTkFrame):
             dictionary_uebergabe[f'sn{num}'] = serial_num_word
             dictionary_uebergabe[f'dat{num}'] = self.data_entry.get()
 
+        self.word_datei(dictionary_uebergabe, vorname, nachname)
         self.empty_table.delete(*self.empty_table.get_children())
 
+    def word_datei(self, dict, vorname, nachname):
         default_word_datei = ("default_protokoll.docx")
         word_datei = DocxTemplate(default_word_datei)
-        word_datei.render(dictionary_uebergabe)
+        word_datei.render(dict)
 
         count_name = 0
         files = os.listdir()
@@ -291,9 +283,9 @@ class SecondFrame(ctk.CTkFrame):
             end_word_directory = file_name
             word_datei.save(end_word_directory)
 
-        self.bestaetigung_button = ctk.CTkButton(self.dialog_mitarbeiter, text="Word", image=self.word,
+        confirm_button = ctk.CTkButton(self.dialog_mitarbeiter, text="Word", image=self.word,
                                                  command=lambda: self.open(end_word_directory))
-        self.bestaetigung_button.grid(row=16, column=0, columnspan=2)
+        confirm_button.grid(row=16, column=0, columnspan=2)
 
     def open(self, end_word):
         subprocess.Popen(['start', end_word], shell=True)
