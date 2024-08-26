@@ -1,9 +1,9 @@
 import sqlite3
 from tkinter import messagebox
 import customtkinter as ctk
-import configparser
 import custom_treeview as ctv
 from PIL import Image
+from ssort import sort_function
 
 class Table2(ctk.CTkFrame):
 
@@ -23,19 +23,19 @@ class Table2(ctk.CTkFrame):
 
         self.treeview_inventar.heading("#0", text="Item")
         self.treeview_inventar.heading("column1", text="Vorname",
-                                       command=lambda: self.sort_function("column1", self.treeview_inventar, False))
+                                       command=lambda: sort_function("column1", self.treeview_inventar, False))
         self.treeview_inventar.heading("column2", text="Nachname",
-                                       command=lambda: self.sort_function("column2", self.treeview_inventar, False))
+                                       command=lambda: sort_function("column2", self.treeview_inventar, False))
         self.treeview_inventar.heading("column3", text="Artikel",
-                                       command=lambda: self.sort_function("column3", self.treeview_inventar, False))
+                                       command=lambda: sort_function("column3", self.treeview_inventar, False))
         self.treeview_inventar.heading("column4", text="Hersteller",
-                                       command=lambda: self.sort_function("column4", self.treeview_inventar, False))
+                                       command=lambda: sort_function("column4", self.treeview_inventar, False))
         self.treeview_inventar.heading("column5", text="Model",
-                                       command=lambda: self.sort_function("column5", self.treeview_inventar, False))
+                                       command=lambda: sort_function("column5", self.treeview_inventar, False))
         self.treeview_inventar.heading("column6", text="Seriennummer",
-                                       command=lambda: self.sort_function("column6", self.treeview_inventar, False))
+                                       command=lambda: sort_function("column6", self.treeview_inventar, False))
         self.treeview_inventar.heading("column7", text="Bemerkung",
-                                       command=lambda: self.sort_function("column7", self.treeview_inventar, False))
+                                       command=lambda: sort_function("column7", self.treeview_inventar, False))
 
         self.treeview_inventar.column("#0", width=0, minwidth=0, stretch=0)
         self.treeview_inventar.column("column1", width=130)
@@ -45,6 +45,9 @@ class Table2(ctk.CTkFrame):
         self.treeview_inventar.column("column5", width=190)
         self.treeview_inventar.column("column6", width=169)
         self.treeview_inventar.column("column7", width=190)
+
+        self.treeview_inventar.tag_configure("odd", background="white")
+        self.treeview_inventar.tag_configure("even", background="gray85")
 
         self.treeview_inventar.bind("<Double-1>", self.clicker_table_2)
 
@@ -58,44 +61,28 @@ class Table2(ctk.CTkFrame):
         self.search.grid(row=1, column=0, padx=15, pady=25)
         self.search.bind("<KeyRelease>", self.search_funktion_event)
 
-    def sort_function(self, column, table, reverse=False):
-        data = [(table.set(child, column), child) for child in table.get_children()]
-        data.sort(reverse=reverse)
-        for index, (val, child) in enumerate(data):
-            table.move(child, '', index)
-
-        table.tag_configure("even", background='gray85')
-        table.tag_configure("odd", background='white')
-        for count, item in enumerate(table.get_children()):
-            tag = "even" if count % 2 == 0 else "odd"
-            table.item(item, tags=(tag))
-
     def second_table_function(self):
-
         self.grid(row=1, column=0, sticky="nsew", columnspan=3)
 
         self.treeview_inventar.delete(*self.treeview_inventar.get_children())
         self.treeview_inventar.grid_forget()
 
-        self.treeview_inventar.tag_configure("odd", background="white")
-        self.treeview_inventar.tag_configure("even", background="gray85")
-
         connection = sqlite3.connect('my_database.db')
         cursor = connection.cursor()
 
-        records_sql = cursor.execute(f'''SELECT username, nachname, artikel, hersteller, model, sn, bemerkung 
-                                         FROM inventur
-                                         WHERE username != "lager" 
-                                         AND username LIKE "%{self.search.get()}%"''')
-        records = [row for row in records_sql]
+        table2_values_sql = cursor.execute(f'''SELECT username, nachname, artikel, hersteller, model, sn, bemerkung 
+                                               FROM inventur
+                                               WHERE username != "lager" 
+                                               AND username LIKE "%{self.search.get()}%"''')
+        table2_values_list = [row for row in table2_values_sql]
 
-        for count, record in enumerate(records):
+        for count, record in enumerate(table2_values_list):
             tag = "even" if count % 2 == 0 else "odd"
             self.treeview_inventar.insert("", "end", iid=count, tags=(tag),
-                                       values=(record[0], record[1], record[2], record[3], record[4]))
+                                   values=(record[0], record[1], record[2], record[3], record[4], record[5], record[6]))
 
         self.treeview_inventar.grid(row=0, column=0, sticky="nsew", pady=(35, 20), padx=40)
-        self.sort_function("column1", self.treeview_inventar, False)
+        sort_function("column1", self.treeview_inventar, False)
 
     def clicker_table_2(self, event):
 

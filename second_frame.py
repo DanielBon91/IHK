@@ -5,6 +5,7 @@ import sqlite3
 import subprocess
 from PIL import Image
 from docxtpl import DocxTemplate
+from ssort import sort_function
 
 connection = sqlite3.connect('my_database.db')
 cursor = connection.cursor()
@@ -12,6 +13,7 @@ cursor = connection.cursor()
 class SecondFrame(ctk.CTkFrame):
 
     def __init__(self, master):
+
         super().__init__(master, fg_color="transparent")
         self.grid_columnconfigure(0, weight=1)
         self.grid_rowconfigure(0, weight=1)
@@ -30,15 +32,15 @@ class SecondFrame(ctk.CTkFrame):
         self.lager_table.configure(yscrollcommand=self.scrollbar_lager_table.set)
         self.lager_table.heading("#0", text="")
         self.lager_table.heading("column1", text="Artikel",
-                                 command=lambda: self.sort_function("column1", self.lager_table, False))
+                                 command=lambda: sort_function("column1", self.lager_table, False))
         self.lager_table.heading("column2", text="Hersteller",
-                                 command=lambda: self.sort_function("column2", self.lager_table, False))
+                                 command=lambda: sort_function("column2", self.lager_table, False))
         self.lager_table.heading("column3", text="Model",
-                                 command=lambda: self.sort_function("column3", self.lager_table, False))
+                                 command=lambda: sort_function("column3", self.lager_table, False))
         self.lager_table.heading("column4", text="Seriennummer",
-                                 command=lambda: self.sort_function("column4", self.lager_table, False))
+                                 command=lambda: sort_function("column4", self.lager_table, False))
         self.lager_table.heading("column5", text="Bemerkung",
-                                 command=lambda: self.sort_function("column5", self.lager_table, False))
+                                 command=lambda: sort_function("column5", self.lager_table, False))
 
         self.lager_table.column("#0", width=0, minwidth=0, stretch=0)
         self.lager_table.column("column1", width=120)
@@ -53,15 +55,15 @@ class SecondFrame(ctk.CTkFrame):
                                               columns=("column1", "column2", "column3", "column4", "column5"))
         self.empty_table.heading("#0", text="")
         self.empty_table.heading("column1", text="Artikel",
-                                 command=lambda: self.sort_function("column1", self.empty_table, False))
+                                 command=lambda: sort_function("column1", self.empty_table, False))
         self.empty_table.heading("column2", text="Hersteller",
-                                 command=lambda: self.sort_function("column2", self.empty_table, False))
+                                 command=lambda: sort_function("column2", self.empty_table, False))
         self.empty_table.heading("column3", text="Model",
-                                 command=lambda: self.sort_function("column3", self.empty_table, False))
+                                 command=lambda: sort_function("column3", self.empty_table, False))
         self.empty_table.heading("column4", text="Seriennummer",
-                                 command=lambda: self.sort_function("column4", self.empty_table, False))
+                                 command=lambda: sort_function("column4", self.empty_table, False))
         self.empty_table.heading("column5", text="Bemerkung",
-                                 command=lambda: self.sort_function("column5", self.empty_table, False))
+                                 command=lambda: sort_function("column5", self.empty_table, False))
 
         self.empty_table.column("#0", width=0, minwidth=0, stretch=0)
         self.empty_table.column("column1", width=120)
@@ -88,6 +90,7 @@ class SecondFrame(ctk.CTkFrame):
         self.empty_table.bind("<Double-1>", self.minus_click)
 
     def second_frame_lager_tabelle(self):
+
         self.grid(row=0, column=1, sticky="nsew")
 
         self.lager_table.delete(*self.lager_table.get_children())
@@ -106,24 +109,14 @@ class SecondFrame(ctk.CTkFrame):
                                        values=(record[0], record[1], record[2], record[3], record[4]))
 
         self.lager_table.grid(row=0, column=0, sticky="nsew", pady=(35, 20), padx=40)
-        self.sort_function("column1", self.lager_table, False)
-
-    def sort_function(self, column, table, reverse=False):
-        data = [(table.set(child, column), child) for child in table.get_children()]
-        data.sort(reverse=reverse)
-        for index, (val, child) in enumerate(data):
-            table.move(child, '', index)
-
-        table.tag_configure("even", background='gray85')
-        table.tag_configure("odd", background='white')
-        for count, item in enumerate(table.get_children()):
-            tag = "even" if count % 2 == 0 else "odd"
-            table.item(item, tags=(tag))
+        sort_function("column1", self.lager_table, False)
 
     def plus_click(self, event):
+
         self.plus_function()
 
     def plus_function(self):
+
         for rows in self.lager_table.selection():
             self.empty_table.insert("", "end", values=(self.lager_table.item(rows, 'values')[0],
                                                        self.lager_table.item(rows, 'values')[1],
@@ -136,21 +129,24 @@ class SecondFrame(ctk.CTkFrame):
             self.zuweisen_button.configure(state="normal")
 
     def minus_click(self, event):
+
         self.minus_function()
 
     def minus_function(self):
+
         for rows in self.empty_table.selection():
-            self.lager_table.insert("", "end", text="", values=(self.empty_table.item(rows, 'values')[0],
-                                                                self.empty_table.item(rows, 'values')[1],
-                                                                self.empty_table.item(rows, 'values')[2],
-                                                                self.empty_table.item(rows, 'values')[3],
-                                                                self.empty_table.item(rows, 'values')[4]))
+            self.lager_table.insert("", "end", values=(self.empty_table.item(rows, 'values')[0],
+                                                       self.empty_table.item(rows, 'values')[1],
+                                                       self.empty_table.item(rows, 'values')[2],
+                                                       self.empty_table.item(rows, 'values')[3],
+                                                       self.empty_table.item(rows, 'values')[4]))
             self.empty_table.delete(self.empty_table.selection()[0])
 
         if len(self.empty_table.get_children()) == 0:
             self.zuweisen_button.configure(state="disabled")
 
     def uebergabe_function(self):
+
         self.dialog_mitarbeiter = ctk.CTkToplevel(self)
         self.dialog_mitarbeiter.title("Bitte auswählen")
         self.dialog_mitarbeiter.geometry("800x750+1030+250")
@@ -183,6 +179,7 @@ class SecondFrame(ctk.CTkFrame):
         self.dialog_mitarbeiter_box_nachname.set("Bitte auswählen")
 
     def vorwahl_nachname(self, vorname):
+
         self.dialog_mitarbeiter_box_nachname.configure(state="normal")
         self.dialog_mitarbeiter_box_nachname.set("Bitte auswählen")
 
@@ -195,6 +192,7 @@ class SecondFrame(ctk.CTkFrame):
                     command=lambda nachname_get = nachname: self.confirm_function(vorname, nachname_get))
 
     def confirm_function(self, vorname, nachname):
+
         ctk.CTkLabel(self.dialog_mitarbeiter, font=ctk.CTkFont(size=25, weight="bold"),
                                               text=(f"{vorname} {nachname} bekomt die Waren:")).grid(row=2, column=0,
                                               columnspan=2, padx=(50, 0), pady=(45, 15), sticky="w")
@@ -225,21 +223,24 @@ class SecondFrame(ctk.CTkFrame):
         self.top_level_confirm_button.grid(row=15, column=0, columnspan=3, pady=45, sticky="s")
 
     def button_active(self, date):
+
         if len(date) == 10:
             self.top_level_confirm_button.configure(state="normal")
         else:
             pass
 
     def bestaetigung_command(self, vorname, nachname, abteilung, chef):
-        dictionary_uebergabe = {'name': vorname,
-                                'nachname': nachname,
-                                'abteilung': abteilung,
-                                'chef': chef}
+
+        abteilung_dict = {'name': vorname,
+                          'nachname': nachname,
+                          'abteilung': abteilung,
+                          'chef': chef}
         for value in self.empty_table.get_children():
             artikel = self.empty_table.item(value)['values'][0]
             hersteller = self.empty_table.item(value)['values'][1]
             model = self.empty_table.item(value)['values'][2]
             seriennummer = self.empty_table.item(value)['values'][3]
+            print(artikel, hersteller, model, seriennummer)
 
             cursor.execute(f'''UPDATE inventur 
                                SET username =  "{vorname}", nachname = "{nachname}"
@@ -247,27 +248,26 @@ class SecondFrame(ctk.CTkFrame):
                                AND hersteller = "{hersteller}" 
                                AND model = "{str(model)}" 
                                AND sn = "{str(seriennummer)}"''')
-
             connection.commit()
 
         for num, rows in enumerate(self.empty_table.get_children()):
             art_name = ' '.join(str(value) for value in self.empty_table.item(rows)['values'][:3])
             serial_num_word = self.empty_table.item(rows)['values'][3]
-            dictionary_uebergabe[f'art{num}'] = art_name
-            dictionary_uebergabe[f'sn{num}'] = serial_num_word
-            dictionary_uebergabe[f'dat{num}'] = self.data_entry.get()
+            abteilung_dict[f'art{num}'] = art_name
+            abteilung_dict[f'sn{num}'] = serial_num_word
+            abteilung_dict[f'dat{num}'] = self.data_entry.get()
 
-        self.word_datei(dictionary_uebergabe, vorname, nachname)
+        self.word_datei(abteilung_dict, vorname, nachname)
         self.empty_table.delete(*self.empty_table.get_children())
 
-    def word_datei(self, dict, vorname, nachname):
-        default_word_datei = ("default_protokoll.docx")
-        word_datei = DocxTemplate(default_word_datei)
-        word_datei.render(dict)
+    def word_datei(self, abteilung_dict, vorname, nachname):
+
+        #default_word_datei = ("default_protokoll.docx")
+        word_datei = DocxTemplate("default_protokoll.docx")
+        word_datei.render(abteilung_dict)
 
         count_name = 0
         files = os.listdir()
-
         vollname = f'{vorname}_{nachname}'
 
         for name in files:
@@ -284,10 +284,11 @@ class SecondFrame(ctk.CTkFrame):
             word_datei.save(end_word_directory)
 
         confirm_button = ctk.CTkButton(self.dialog_mitarbeiter, text="Word", image=self.word,
-                                                 command=lambda: self.open(end_word_directory))
+                                       command=lambda: self.open(end_word_directory))
         confirm_button.grid(row=16, column=0, columnspan=2)
 
     def open(self, end_word):
+
         subprocess.Popen(['start', end_word], shell=True)
         self.dialog_mitarbeiter.destroy()
         self.zuweisen_button.configure(state="disabled")
