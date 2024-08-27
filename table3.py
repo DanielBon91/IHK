@@ -3,18 +3,19 @@ from tkinter import messagebox
 from tkinter.ttk import Style
 import customtkinter as ctk
 import custom_treeview as ctv
-from ssort import sort_function
 class Table3(ctk.CTkFrame):
 
     def __init__(self, master):
-
         super().__init__(master, fg_color="transparent")
         self.grid_columnconfigure(0, weight=1)
+        self.grid_rowconfigure(0, weight=1)
+
+        self.sort_function = ctv.CustomTreeView().sort_function
 
         self.style_treeview_style = Style()
         self.style_treeview_style.configure("Treeview", rowheight=25)
 
-        self.treeview_struktur = ctv.CustomTreeView(self, height=25, columns=(
+        self.treeview_struktur = ctv.CustomTreeView(self, columns=(
             "column1", "column2", "column3", "column4"))
 
         self.tree_scroll = ctk.CTkScrollbar(self, command=self.treeview_struktur.yview)
@@ -24,22 +25,19 @@ class Table3(ctk.CTkFrame):
 
         self.treeview_struktur.heading("#0", text="Item")
         self.treeview_struktur.heading("column1", text="Vorname",
-                                       command=lambda: sort_function("column1", self.treeview_struktur, False))
+                                       command=lambda: self.sort_function("column1", self.treeview_struktur, False))
         self.treeview_struktur.heading("column2", text="Nachname",
-                                       command=lambda: sort_function("column2", self.treeview_struktur, False))
+                                       command=lambda: self.sort_function("column2", self.treeview_struktur, False))
         self.treeview_struktur.heading("column3", text="Abteilung",
-                                       command=lambda: sort_function("column3", self.treeview_struktur, False))
+                                       command=lambda: self.sort_function("column3", self.treeview_struktur, False))
         self.treeview_struktur.heading("column4", text="Vorgesetzter",
-                                       command=lambda: sort_function("column4", self.treeview_struktur, False))
+                                       command=lambda: self.sort_function("column4", self.treeview_struktur, False))
 
         self.treeview_struktur.column("#0", width=0, minwidth=0, stretch=0)
-        self.treeview_struktur.column("column1", width=250)
-        self.treeview_struktur.column("column2", width=250)
-        self.treeview_struktur.column("column3", width=267)
-        self.treeview_struktur.column("column4", width=267)
-
-        self.treeview_struktur.tag_configure("odd", background="white")
-        self.treeview_struktur.tag_configure("even", background="gray85")
+        self.treeview_struktur.column("column1", width=220)
+        self.treeview_struktur.column("column2", width=220)
+        self.treeview_struktur.column("column3", width=200)
+        self.treeview_struktur.column("column4", width=250)
 
         self.treeview_struktur.grid(row=2, column=0, padx=(15, 0), columnspan=8)
 
@@ -62,7 +60,7 @@ class Table3(ctk.CTkFrame):
                                           values=(record[0], record[1], record[2], record[3]))
 
         self.treeview_struktur.grid(row=0, column=0, sticky="nsew", pady=(35, 20), padx=40)
-        sort_function("column1", self.treeview_struktur, False)
+        self.sort_function("column1", self.treeview_struktur, False)
 
     def clicker_table_3(self, event):
 

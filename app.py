@@ -15,7 +15,7 @@ class App(ctk.CTk):
         screen_height = self.winfo_screenheight()
         axe_x = (screen_width / 2) - (1400 / 2)    # 1410
         axe_y = (screen_height / 2) - (1000 / 2)    # 1200
-        self.geometry(f"{1400}x{900}+{int(axe_x)}+{int(axe_y)}")    #1500x1200
+        self.geometry(f"{1500}x{900}+{int(axe_x)}+{int(axe_y)}")    #1500x1200
         self.grid_columnconfigure(0, weight=0)
         self.grid_columnconfigure(1, weight=2)
         self.grid_rowconfigure(0, weight=1)
@@ -73,7 +73,7 @@ class App(ctk.CTk):
         self.navi_button_4.grid(row=4, column=0, sticky="we")
 
         self.change_mode = ctk.CTkOptionMenu(self.navi_frame, corner_radius=7, values=["Dark", "Light"],
-                                             command=self.change_mode).grid(row=5, column=0, pady=20, sticky="s")
+                                           command=self.change_mode).grid(row=5, column=0, pady=20, sticky="s")
 
         self.first_menu = FirstFrame(self)
         self.second_menu = SecondFrame(self)

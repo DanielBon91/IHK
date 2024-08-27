@@ -4,7 +4,6 @@ from datetime import date
 from PIL import Image
 import sqlite3
 
-
 date_today = date.today().strftime("%d.%m.%Y")
 class FirstFrame(ctk.CTkFrame):
 

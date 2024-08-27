@@ -1,33 +1,35 @@
 import customtkinter as ctk
 import custom_treeview as ctv
 import sqlite3
-from ssort import sort_function
 
 class Table1(ctk.CTkFrame):
 
     def __init__(self, master):
         super().__init__(master, fg_color="transparent")
-        self.grid_columnconfigure(0, weight=1)
 
-        self.treeview_lager = ctv.CustomTreeView(self, height=25, columns=(
+        self.sort_function = ctv.CustomTreeView().sort_function
+
+        self.grid_columnconfigure(0, weight=1)
+        self.grid_rowconfigure(0, weight=1)
+
+        self.treeview_lager = ctv.CustomTreeView(self, columns=(
             "column1", "column2", "column3", "column4", "column5"))
 
         self.tree_scroll_lager = ctk.CTkScrollbar(self, command=self.treeview_lager.yview)
         self.tree_scroll_lager.grid(row=0, column=0, sticky="nse", padx=(0,40), pady=(35, 20))
 
         self.treeview_lager.configure(yscrollcommand=self.tree_scroll_lager.set)
-
         self.treeview_lager.heading("#0", text="Item")
         self.treeview_lager.heading("column1", text="Artikel",
-                                    command=lambda: sort_function("column1", self.treeview_lager, False))
+                                    command=lambda: self.sort_function("column1", self.treeview_lager, False))
         self.treeview_lager.heading("column2", text="Hersteller",
-                                    command=lambda: sort_function("column2", self.treeview_lager, False))
+                                    command=lambda: self.sort_function("column2", self.treeview_lager, False))
         self.treeview_lager.heading("column3", text="Model",
-                                    command=lambda: sort_function("column3", self.treeview_lager, False))
+                                    command=lambda: self.sort_function("column3", self.treeview_lager, False))
         self.treeview_lager.heading("column4", text="Seriennummer",
-                                    command=lambda: sort_function("column4", self.treeview_lager, False))
+                                    command=lambda: self.sort_function("column4", self.treeview_lager, False))
         self.treeview_lager.heading("column5", text="Bemerkung",
-                                    command=lambda: sort_function("column5", self.treeview_lager, False))
+                                    command=lambda: self.sort_function("column5", self.treeview_lager, False))
 
         self.treeview_lager.column("#0", width=0, minwidth=0, stretch=0)
         self.treeview_lager.column("column1", width=180)
@@ -35,9 +37,6 @@ class Table1(ctk.CTkFrame):
         self.treeview_lager.column("column3", width=260)
         self.treeview_lager.column("column4", width=190)
         self.treeview_lager.column("column5", width=224)
-
-        self.treeview_lager.tag_configure("odd", background="white")
-        self.treeview_lager.tag_configure("even", background="gray85")
 
         self.treeview_lager.bind("<Double-1>", self.clicker_table_1)
 
@@ -60,7 +59,7 @@ class Table1(ctk.CTkFrame):
                                        values=(record[0], record[1], record[2], record[3], record[4]))
 
         self.treeview_lager.grid(row=0, column=0, sticky="nsew", pady=(35, 20), padx=40)
-        sort_function("column1", self.treeview_lager, False)
+        self.sort_function("column1", self.treeview_lager, False)
 
     def clicker_table_1(self, event):
 

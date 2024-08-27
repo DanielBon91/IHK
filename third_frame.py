@@ -7,6 +7,7 @@ class ThirdFrame(ctk.CTkFrame):
     def __init__(self, master):
         super().__init__(master, fg_color="transparent")
         self.grid_columnconfigure((0, 1, 2), weight=1)
+        self.grid_rowconfigure(1, weight=1)
 
         self.third_frame_lager_button = ctk.CTkButton(self, text="Lager", fg_color="gray25",
                                                       height=50, corner_radius=0, hover_color="gray45",

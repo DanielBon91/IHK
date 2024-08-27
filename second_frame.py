@@ -5,7 +5,6 @@ import sqlite3
 import subprocess
 from PIL import Image
 from docxtpl import DocxTemplate
-from ssort import sort_function
 
 connection = sqlite3.connect('my_database.db')
 cursor = connection.cursor()
@@ -17,6 +16,8 @@ class SecondFrame(ctk.CTkFrame):
         super().__init__(master, fg_color="transparent")
         self.grid_columnconfigure(0, weight=1)
         self.grid_rowconfigure(0, weight=1)
+
+        self.sort_function = ctv.CustomTreeView().sort_function
 
         # Bilderstellung
         self.image_uebergabe = ctk.CTkImage(Image.open("images/uebergabe.png"), size=(35, 35))
@@ -32,15 +33,15 @@ class SecondFrame(ctk.CTkFrame):
         self.lager_table.configure(yscrollcommand=self.scrollbar_lager_table.set)
         self.lager_table.heading("#0", text="")
         self.lager_table.heading("column1", text="Artikel",
-                                 command=lambda: sort_function("column1", self.lager_table, False))
+                                 command=lambda: self.sort_function("column1", self.lager_table, False))
         self.lager_table.heading("column2", text="Hersteller",
-                                 command=lambda: sort_function("column2", self.lager_table, False))
+                                 command=lambda: self.sort_function("column2", self.lager_table, False))
         self.lager_table.heading("column3", text="Model",
-                                 command=lambda: sort_function("column3", self.lager_table, False))
+                                 command=lambda: self.sort_function("column3", self.lager_table, False))
         self.lager_table.heading("column4", text="Seriennummer",
-                                 command=lambda: sort_function("column4", self.lager_table, False))
+                                 command=lambda: self.sort_function("column4", self.lager_table, False))
         self.lager_table.heading("column5", text="Bemerkung",
-                                 command=lambda: sort_function("column5", self.lager_table, False))
+                                 command=lambda: self.sort_function("column5", self.lager_table, False))
 
         self.lager_table.column("#0", width=0, minwidth=0, stretch=0)
         self.lager_table.column("column1", width=120)
@@ -55,15 +56,15 @@ class SecondFrame(ctk.CTkFrame):
                                               columns=("column1", "column2", "column3", "column4", "column5"))
         self.empty_table.heading("#0", text="")
         self.empty_table.heading("column1", text="Artikel",
-                                 command=lambda: sort_function("column1", self.empty_table, False))
+                                 command=lambda: self.sort_function("column1", self.empty_table, False))
         self.empty_table.heading("column2", text="Hersteller",
-                                 command=lambda: sort_function("column2", self.empty_table, False))
+                                 command=lambda: self.sort_function("column2", self.empty_table, False))
         self.empty_table.heading("column3", text="Model",
-                                 command=lambda: sort_function("column3", self.empty_table, False))
+                                 command=lambda: self.sort_function("column3", self.empty_table, False))
         self.empty_table.heading("column4", text="Seriennummer",
-                                 command=lambda: sort_function("column4", self.empty_table, False))
+                                 command=lambda: self.sort_function("column4", self.empty_table, False))
         self.empty_table.heading("column5", text="Bemerkung",
-                                 command=lambda: sort_function("column5", self.empty_table, False))
+                                 command=lambda: self.sort_function("column5", self.empty_table, False))
 
         self.empty_table.column("#0", width=0, minwidth=0, stretch=0)
         self.empty_table.column("column1", width=120)
@@ -96,9 +97,6 @@ class SecondFrame(ctk.CTkFrame):
         self.lager_table.delete(*self.lager_table.get_children())
         self.lager_table.grid_forget()
 
-        self.lager_table.tag_configure("odd", background="white")
-        self.lager_table.tag_configure("even", background="gray95")
-
         lager_daten_sql = cursor.execute(f'''SELECT artikel, hersteller, model, sn, bemerkung 
                                              FROM inventur WHERE username = "lager"''')
         lager_daten_list = [row for row in lager_daten_sql]
@@ -109,7 +107,7 @@ class SecondFrame(ctk.CTkFrame):
                                        values=(record[0], record[1], record[2], record[3], record[4]))
 
         self.lager_table.grid(row=0, column=0, sticky="nsew", pady=(35, 20), padx=40)
-        sort_function("column1", self.lager_table, False)
+        self.sort_function("column1", self.lager_table, False)
 
     def plus_click(self, event):
 
@@ -240,7 +238,6 @@ class SecondFrame(ctk.CTkFrame):
             hersteller = self.empty_table.item(value)['values'][1]
             model = self.empty_table.item(value)['values'][2]
             seriennummer = self.empty_table.item(value)['values'][3]
-            print(artikel, hersteller, model, seriennummer)
 
             cursor.execute(f'''UPDATE inventur 
                                SET username =  "{vorname}", nachname = "{nachname}"

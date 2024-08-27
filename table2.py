@@ -3,17 +3,20 @@ from tkinter import messagebox
 import customtkinter as ctk
 import custom_treeview as ctv
 from PIL import Image
-from ssort import sort_function
 
 class Table2(ctk.CTkFrame):
 
     def __init__(self, master):
         super().__init__(master, fg_color="transparent")
+
+        self.sort_function = ctv.CustomTreeView().sort_function
+
         self.grid_columnconfigure(0, weight=1)
+        self.grid_rowconfigure(0, weight=1)
 
         self.image_rueckgabe = ctk.CTkImage(Image.open("images/rueckgabe.png"), size=(35, 35))
 
-        self.treeview_inventar = ctv.CustomTreeView(self, height=21, columns=(
+        self.treeview_inventar = ctv.CustomTreeView(self, columns=(
             "column1", "column2", "column3", "column4", "column5", "column6", "column7"))
 
         self.tree_scroll_invent = ctk.CTkScrollbar(self, command=self.treeview_inventar.yview)
@@ -23,19 +26,19 @@ class Table2(ctk.CTkFrame):
 
         self.treeview_inventar.heading("#0", text="Item")
         self.treeview_inventar.heading("column1", text="Vorname",
-                                       command=lambda: sort_function("column1", self.treeview_inventar, False))
+                                       command=lambda: self.sort_function("column1", self.treeview_inventar, False))
         self.treeview_inventar.heading("column2", text="Nachname",
-                                       command=lambda: sort_function("column2", self.treeview_inventar, False))
+                                       command=lambda: self.sort_function("column2", self.treeview_inventar, False))
         self.treeview_inventar.heading("column3", text="Artikel",
-                                       command=lambda: sort_function("column3", self.treeview_inventar, False))
+                                       command=lambda: self.sort_function("column3", self.treeview_inventar, False))
         self.treeview_inventar.heading("column4", text="Hersteller",
-                                       command=lambda: sort_function("column4", self.treeview_inventar, False))
+                                       command=lambda: self.sort_function("column4", self.treeview_inventar, False))
         self.treeview_inventar.heading("column5", text="Model",
-                                       command=lambda: sort_function("column5", self.treeview_inventar, False))
+                                       command=lambda: self.sort_function("column5", self.treeview_inventar, False))
         self.treeview_inventar.heading("column6", text="Seriennummer",
-                                       command=lambda: sort_function("column6", self.treeview_inventar, False))
+                                       command=lambda: self.sort_function("column6", self.treeview_inventar, False))
         self.treeview_inventar.heading("column7", text="Bemerkung",
-                                       command=lambda: sort_function("column7", self.treeview_inventar, False))
+                                       command=lambda: self.sort_function("column7", self.treeview_inventar, False))
 
         self.treeview_inventar.column("#0", width=0, minwidth=0, stretch=0)
         self.treeview_inventar.column("column1", width=130)
@@ -45,9 +48,6 @@ class Table2(ctk.CTkFrame):
         self.treeview_inventar.column("column5", width=190)
         self.treeview_inventar.column("column6", width=169)
         self.treeview_inventar.column("column7", width=190)
-
-        self.treeview_inventar.tag_configure("odd", background="white")
-        self.treeview_inventar.tag_configure("even", background="gray85")
 
         self.treeview_inventar.bind("<Double-1>", self.clicker_table_2)
 
@@ -82,7 +82,7 @@ class Table2(ctk.CTkFrame):
                                    values=(record[0], record[1], record[2], record[3], record[4], record[5], record[6]))
 
         self.treeview_inventar.grid(row=0, column=0, sticky="nsew", pady=(35, 20), padx=40)
-        sort_function("column1", self.treeview_inventar, False)
+        self.sort_function("column1", self.treeview_inventar, False)
 
     def clicker_table_2(self, event):
 
@@ -121,8 +121,7 @@ class Table2(ctk.CTkFrame):
         self.sn_table2.insert(0, self.values_table2[5])
         self.bemerkung_table2.insert(0, self.values_table2[6])
 
-        self.confirm_button_table2 = ctk.CTkButton(self.dialog_table2, text="OK",
-                                                   command=self.update_record_table_2).grid(row=5, column=1, pady=(30, 4))
+        ctk.CTkButton(self.dialog_table2, text="OK", command=self.update_record_table_2).grid(row=5, column=1, pady=(30, 4))
     def rueckgabe_fuction(self):
 
         rueckgabe_bestaetigen = messagebox.askyesno("Bitte bestätigen", "Sind Sie sicher?")
@@ -132,7 +131,6 @@ class Table2(ctk.CTkFrame):
 
         if rueckgabe_bestaetigen:
             for rows in self.treeview_inventar.selection():
-
                 cursor.execute(f'''UPDATE inventur SET username = "lager", nachname = "lager"
                                    WHERE artikel = "{self.treeview_inventar.item(rows, 'values')[2]}"
                                    AND hersteller = "{self.treeview_inventar.item(rows, 'values')[3]}"
@@ -146,8 +144,9 @@ class Table2(ctk.CTkFrame):
         self.second_table_function()
 
     def update_record_table_2(self):
-        self.treeview_inventar.item(self.selected_table2, text="",
-                                    values=(self.values_table2[0], self.values_table2[1], self.artikel_table2.get(),
+        self.treeview_inventar.item(self.selected_table2,
+                                    values=(self.values_table2[0], self.values_table2[1],
+                                            self.artikel_table2.get(),
                                             self.hersteller_table2.get(),
                                             self.model_table2.get(),
                                             self.sn_table2.get(),
@@ -155,7 +154,6 @@ class Table2(ctk.CTkFrame):
 
         connection = sqlite3.connect('my_database.db')
         cursor = connection.cursor()
-
         cursor.execute(f'''UPDATE inventur SET artikel = "{self.artikel_table2.get()}",
                            hersteller = "{self.hersteller_table2.get()}",
                            model = "{self.model_table2.get()}",
