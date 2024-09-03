@@ -1,9 +1,11 @@
-import sqlite3
+from datetime import date
 from tkinter import messagebox
 import customtkinter as ctk
 import custom_treeview as ctv
 from PIL import Image
+from sql_connection import connection, cursor
 
+date_today = date.today().strftime("%d.%m.%Y")
 
 class Table2(ctk.CTkFrame):
 
@@ -69,23 +71,22 @@ class Table2(ctk.CTkFrame):
         self.treeview_inventar.delete(*self.treeview_inventar.get_children())
         self.treeview_inventar.grid_forget()
 
-        connection = sqlite3.connect('my_database.db')
-        cursor = connection.cursor()
-
         table2_values_sql = cursor.execute(f'''SELECT username, nachname, artikel, hersteller, model, sn, bemerkung 
                                                FROM inventur
-                                               WHERE username != "lager" 
-                                               AND username LIKE "%{self.search.get()}%"''')
+                                               WHERE username LIKE "%{self.search.get()}%"''')
         table2_values_list = [row for row in table2_values_sql]
 
         for count, record in enumerate(table2_values_list):
             tag = "even" if count % 2 == 0 else "odd"
             self.treeview_inventar.insert("", "end", iid=count, tags=tag,
-                                          values=(
-                                          record[0], record[1], record[2], record[3], record[4], record[5], record[6]))
+                                          values=(record[0], record[1], record[2], record[3], record[4], record[5],
+                                                  record[6]))
 
         self.treeview_inventar.grid(row=0, column=0, sticky="nsew", pady=(35, 20), padx=40)
         self.sort_function("column1", self.treeview_inventar, False)
+
+    def search_funktion_event(self, event):
+        self.second_table_function()
 
     def clicker_table_2(self, event):
 
@@ -118,6 +119,12 @@ class Table2(ctk.CTkFrame):
         self.bemerkung_table2 = ctk.CTkEntry(self.dialog_table2)
         self.bemerkung_table2.grid(row=4, column=1, pady=4)
 
+        self.artikel_table2.bind("<Return>", self.enter_click)
+        self.hersteller_table2.bind("<Return>", self.enter_click)
+        self.model_table2.bind("<Return>", self.enter_click)
+        self.sn_table2.bind("<Return>", self.enter_click)
+        self.bemerkung_table2.bind("<Return>", self.enter_click)
+
         self.selected_table2 = self.treeview_inventar.focus()
         self.values_table2 = self.treeview_inventar.item(self.selected_table2, 'values')
 
@@ -132,26 +139,8 @@ class Table2(ctk.CTkFrame):
         ctk.CTkButton(self.dialog_table2, text="OK", command=self.update_record_table_2).grid(row=5, column=1,
                                                                                               pady=(30, 4))
 
-    def return_function(self):
-
-        return_confirm = messagebox.askyesno("Bitte bestätigen", "Sind Sie sicher?")
-
-        connection = sqlite3.connect('my_database.db')
-        cursor = connection.cursor()
-
-        if return_confirm:
-            for rows in self.treeview_inventar.selection():
-                cursor.execute(f'''UPDATE inventur SET username = "lager", nachname = "lager"
-                                   WHERE artikel = "{self.treeview_inventar.item(rows, 'values')[2]}"
-                                   AND hersteller = "{self.treeview_inventar.item(rows, 'values')[3]}"
-                                   AND model = "{self.treeview_inventar.item(rows, 'values')[4]}"
-                                   AND sn = "{self.treeview_inventar.item(rows, 'values')[5]}"''')
-                connection.commit()
-
-        else:
-            pass
-
-        self.second_table_function()
+    def enter_click(self, event):
+        self.update_record_table_2()
 
     def update_record_table_2(self):
         self.treeview_inventar.item(self.selected_table2,
@@ -162,8 +151,6 @@ class Table2(ctk.CTkFrame):
                                             self.sn_table2.get(),
                                             self.bemerkung_table2.get()))
 
-        connection = sqlite3.connect('my_database.db')
-        cursor = connection.cursor()
         cursor.execute(f'''UPDATE inventur SET artikel = "{self.artikel_table2.get()}",
                            hersteller = "{self.hersteller_table2.get()}",
                            model = "{self.model_table2.get()}",
@@ -176,9 +163,45 @@ class Table2(ctk.CTkFrame):
                            AND bemerkung = "{self.values_table2[6]}"
                            ''')
         connection.commit()
-        connection.close()
 
         self.dialog_table2.destroy()
 
-    def search_funktion_event(self, event):
+    def return_function(self):
+
+        return_confirm = messagebox.askyesno("Bitte bestätigen", "Sind Sie sicher?")
+
+        if return_confirm:
+            for rows in self.treeview_inventar.selection():
+
+                cursor.execute(f'''INSERT INTO lager (artikel, hersteller, model, sn, bemerkung, date)
+                                   SELECT "{self.treeview_inventar.item(rows, 'values')[2]}",
+                                          "{self.treeview_inventar.item(rows, 'values')[3]}",
+                                          "{self.treeview_inventar.item(rows, 'values')[4]}",
+                                          "{self.treeview_inventar.item(rows, 'values')[5]}",
+                                          "{self.treeview_inventar.item(rows, 'values')[6]}",
+                                          "{date_today}"
+                                   FROM inventur
+                                   WHERE artikel = "{self.treeview_inventar.item(rows, 'values')[2]}" 
+                                   AND hersteller = "{self.treeview_inventar.item(rows, 'values')[3]}"
+                                   AND model = "{self.treeview_inventar.item(rows, 'values')[4]}"
+                                   AND sn = "{self.treeview_inventar.item(rows, 'values')[5]}"
+                                   ''')
+                cursor.execute(f'''DELETE FROM inventur 
+                                   WHERE artikel = "{self.treeview_inventar.item(rows, 'values')[2]}" 
+                                   AND hersteller = "{self.treeview_inventar.item(rows, 'values')[3]}"
+                                   AND model = "{self.treeview_inventar.item(rows, 'values')[4]}"
+                                   AND sn = "{self.treeview_inventar.item(rows, 'values')[5]}"''')
+
+                #cursor.execute(f'''UPDATE inventur SET username = "lager", nachname = "lager"
+                #                   WHERE artikel = "{self.treeview_inventar.item(rows, 'values')[2]}"
+                #                   AND hersteller = "{self.treeview_inventar.item(rows, 'values')[3]}"
+                #                   AND model = "{self.treeview_inventar.item(rows, 'values')[4]}"
+                #                   AND sn = "{self.treeview_inventar.item(rows, 'values')[5]}"''')
+                connection.commit()
+
+        else:
+            pass
+
         self.second_table_function()
+
+

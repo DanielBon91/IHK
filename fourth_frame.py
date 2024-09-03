@@ -1,9 +1,6 @@
-import sqlite3
 import customtkinter as ctk
 from PIL import Image
-
-connection = sqlite3.connect('my_database.db')
-cursor = connection.cursor()
+from sql_connection import connection, cursor
 
 
 class FourthFrame(ctk.CTkFrame):

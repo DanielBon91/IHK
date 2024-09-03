@@ -1,7 +1,6 @@
 import customtkinter as ctk
 import custom_treeview as ctv
-import sqlite3
-
+from sql_connection import connection, cursor
 
 class Table1(ctk.CTkFrame):
 
@@ -47,11 +46,8 @@ class Table1(ctk.CTkFrame):
         self.treeview_lager.delete(*self.treeview_lager.get_children())
         self.treeview_lager.grid_forget()
 
-        connection = sqlite3.connect('my_database.db')
-        cursor = connection.cursor()
         table1_values_sql = cursor.execute(f'''SELECT artikel, hersteller, model, sn, bemerkung 
-                                           FROM inventur 
-                                           WHERE username = "lager"''')
+                                           FROM lager''')
         table1_values_list = [row for row in table1_values_sql]
 
         for count, record in enumerate(table1_values_list):
@@ -93,6 +89,12 @@ class Table1(ctk.CTkFrame):
         self.bemerkung_table1 = ctk.CTkEntry(self.dialog_table1)
         self.bemerkung_table1.grid(row=4, column=1, pady=4)
 
+        self.artikel_table1.bind("<Return>", self.enter_click)
+        self.hersteller_table1.bind("<Return>", self.enter_click)
+        self.model_table1.bind("<Return>", self.enter_click)
+        self.sn_table1.bind("<Return>", self.enter_click)
+        self.bemerkung_table1.bind("<Return>", self.enter_click)
+
         self.selected_table1 = self.treeview_lager.focus()
 
         self.values_table1 = self.treeview_lager.item(self.selected_table1, 'values')
@@ -112,6 +114,9 @@ class Table1(ctk.CTkFrame):
                                                   hover_color="#F31B31", command=self.delete_command_table1)
         self.delete_button_table1.grid(row=6, column=1, pady=4)
 
+    def enter_click(self, event):
+        self.update_record_table_1()
+
     def update_record_table_1(self):
         self.treeview_lager.item(self.selected_table1, text="",
                                  values=(self.artikel_table1.get(),
@@ -120,33 +125,26 @@ class Table1(ctk.CTkFrame):
                                          self.sn_table1.get(),
                                          self.bemerkung_table1.get()))
 
-        connection = sqlite3.connect('my_database.db')
-        cursor = connection.cursor()
-        cursor.execute(f'''UPDATE inventur SET artikel = "{self.artikel_table1.get()}", 
-                                               hersteller = "{self.hersteller_table1.get()}", 
-                                               model="{self.model_table1.get()}", 
-                                               sn = "{self.sn_table1.get()}", 
-                                               bemerkung = "{self.bemerkung_table1.get()}" 
-                                               WHERE artikel = "{self.values_table1[0]}"
-                                               AND hersteller = "{self.values_table1[1]}" 
-                                               AND model = "{self.values_table1[2]}" 
-                                               AND sn = "{self.values_table1[3]}" 
-                                               AND bemerkung = "{self.values_table1[4]}"''')
-
+        cursor.execute(f'''UPDATE lager SET artikel = "{self.artikel_table1.get()}", 
+                                            hersteller = "{self.hersteller_table1.get()}", 
+                                            model="{self.model_table1.get()}", 
+                                            sn = "{self.sn_table1.get()}", 
+                                            bemerkung = "{self.bemerkung_table1.get()}" 
+                                            WHERE artikel = "{self.values_table1[0]}"
+                                            AND hersteller = "{self.values_table1[1]}" 
+                                            AND model = "{self.values_table1[2]}" 
+                                            AND sn = "{self.values_table1[3]}" 
+                                            AND bemerkung = "{self.values_table1[4]}"''')
         connection.commit()
-        connection.close()
         self.dialog_table1.destroy()
 
     def delete_command_table1(self):
-        connection = sqlite3.connect('my_database.db')
-        cursor = connection.cursor()
-        cursor.execute(f'''DELETE FROM inventur 
+        cursor.execute(f'''DELETE FROM lager 
                            WHERE artikel = "{self.artikel_table1.get()}" 
                            AND hersteller="{self.hersteller_table1.get()}" 
                            AND model="{self.model_table1.get()}" 
                            AND sn ="{self.sn_table1.get()}"''')
         connection.commit()
-        connection.close()
 
         self.treeview_lager.delete(self.selected_table1)
         self.dialog_table1.destroy()

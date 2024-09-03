@@ -2,7 +2,7 @@ import configparser
 import customtkinter as ctk
 from datetime import date
 from PIL import Image
-import sqlite3
+from sql_connection import connection, cursor
 
 date_today = date.today().strftime("%d.%m.%Y")
 
@@ -109,20 +109,16 @@ class FirstFrame(ctk.CTkFrame):
 
         if len(self.artikel_entry.get()) > 0:
 
-            connection = sqlite3.connect('my_database.db')
-            cursor = connection.cursor()
             cursor.execute(f'''INSERT INTO 
-                               inventur (username, nachname, artikel, hersteller, model, sn, bemerkung, date) 
-                               VALUES ("lager", "lager",
-                               "{self.artikel_entry.get().capitalize().strip()}",
-                               "{self.hersteller_entry.get().capitalize().capitalize().strip()}",
-                               "{self.model_entry.get().strip()}",
-                               "{str(self.sn_entry.get().strip())}",
-                               "{self.bemerkung_entry.get('0.0', 'end').strip()}",
-                               "{self.datum_entry.get().strip()}")''')
+                               lager (artikel, hersteller, model, sn, bemerkung, date) 
+                               VALUES ("{self.artikel_entry.get().capitalize().strip()}",
+                                       "{self.hersteller_entry.get().capitalize().capitalize().strip()}",
+                                       "{self.model_entry.get().strip()}",
+                                       "{str(self.sn_entry.get().strip())}",
+                                       "{self.bemerkung_entry.get('0.0', 'end').strip()}",
+                                       "{self.datum_entry.get().strip()}")''')
 
             connection.commit()
-            connection.close()
 
             self.first_frame_clear_all()
 

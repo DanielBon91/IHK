@@ -1,8 +1,7 @@
-import sqlite3
 from tkinter import messagebox
-from tkinter.ttk import Style
 import customtkinter as ctk
 import custom_treeview as ctv
+from sql_connection import connection, cursor
 
 
 class Table3(ctk.CTkFrame):
@@ -13,9 +12,6 @@ class Table3(ctk.CTkFrame):
         self.grid_rowconfigure(0, weight=1)
 
         self.sort_function = ctv.sort_function
-
-        self.style_treeview_style = Style()
-        self.style_treeview_style.configure("Treeview", rowheight=25)
 
         self.treeview_struktur = ctv.CustomTreeView(self, columns=(
             "column1", "column2", "column3", "column4"))
@@ -51,8 +47,6 @@ class Table3(ctk.CTkFrame):
         self.treeview_struktur.delete(*self.treeview_struktur.get_children())
         self.treeview_struktur.grid_forget()
 
-        connection = sqlite3.connect('my_database.db')
-        cursor = connection.cursor()
         table3_values = cursor.execute(f'''SELECT vorname, nachname, abteilung, vorgesetzer FROM users''')
         table3_values_list = [row for row in table3_values]
 
@@ -87,6 +81,11 @@ class Table3(ctk.CTkFrame):
         self.vorgesetzter_table3 = ctk.CTkEntry(self.dialog_table3)
         self.vorgesetzter_table3.grid(row=3, column=1, pady=4)
 
+        self.vorname_table3.bind("<Return>", self.enter_click)
+        self.nachname_table3.bind("<Return>", self.enter_click)
+        self.abteilung_table3.bind("<Return>", self.enter_click)
+        self.vorgesetzter_table3.bind("<Return>", self.enter_click)
+
         self.selected_table3 = self.treeview_struktur.focus()
         self.values_table3 = self.treeview_struktur.item(self.selected_table3, 'values')
 
@@ -105,6 +104,9 @@ class Table3(ctk.CTkFrame):
                                                   hover_color="#F31B31",
                                                   command=self.delete_command_table3).grid(row=6, column=1, pady=4)
 
+    def enter_click(self, event):
+        self.update_record_table_3()
+
     def update_record_table_3(self):
 
         self.treeview_struktur.item(self.selected_table3, text="",
@@ -113,19 +115,20 @@ class Table3(ctk.CTkFrame):
                                             self.abteilung_table3.get(),
                                             self.vorgesetzter_table3.get()))
 
-        connection = sqlite3.connect('my_database.db')
-        cursor = connection.cursor()
         cursor.execute(f'''UPDATE users SET vorname = "{self.vorname_table3.get()}",
-                                   nachname = "{self.nachname_table3.get()}",
-                                   abteilung = "{self.abteilung_table3.get()}",
-                                   vorgesetzer = "{self.vorgesetzter_table3.get()}"
-                                   WHERE vorname = "{self.values_table3[0]}"
-                                   AND nachname = "{self.values_table3[1]}"
-                                   AND abteilung = "{self.values_table3[2]}"
-                                   AND vorgesetzer = "{self.values_table3[3]}"
-                                   ''')
+                                            nachname = "{self.nachname_table3.get()}",
+                                            abteilung = "{self.abteilung_table3.get()}",
+                                            vorgesetzer = "{self.vorgesetzter_table3.get()}"
+                                            WHERE vorname = "{self.values_table3[0]}"
+                                            AND nachname = "{self.values_table3[1]}"
+                                            AND abteilung = "{self.values_table3[2]}"
+                                            AND vorgesetzer = "{self.values_table3[3]}"''')
+        cursor.execute(f'''UPDATE inventur SET username = "{self.vorname_table3.get()}",
+                                               nachname = "{self.nachname_table3.get()}"
+                                               WHERE username = "{self.values_table3[0]}"
+                                               AND nachname = "{self.values_table3[1]}"''')
         connection.commit()
-        connection.close()
+
         self.dialog_table3.destroy()
 
     def delete_command_table3(self):
@@ -139,14 +142,11 @@ class Table3(ctk.CTkFrame):
                                         values=(self.vorname_table3.get(), self.nachname_table3.get(),
                                                 self.abteilung_table3.get(), self.vorgesetzter_table3.get()))
 
-            connection = sqlite3.connect('my_database.db')
-            cursor = connection.cursor()
             cursor.execute(f'''DELETE FROM users WHERE vorname = "{self.vorname_table3.get()}"
                                AND nachname = "{self.nachname_table3.get()}"
                                AND abteilung = "{self.abteilung_table3.get()}"
                                AND vorgesetzer = "{self.vorgesetzter_table3.get()}"''')
             connection.commit()
-            connection.close()
 
             self.treeview_struktur.delete(self.selected_table3)
             self.dialog_table3.destroy()

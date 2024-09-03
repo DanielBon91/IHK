@@ -1,14 +1,10 @@
 import customtkinter as ctk
 import custom_treeview as ctv
 import os
-import sqlite3
 import subprocess
 from PIL import Image
 from docxtpl import DocxTemplate
-
-connection = sqlite3.connect('my_database.db')
-cursor = connection.cursor()
-
+from sql_connection import connection, cursor
 
 class SecondFrame(ctk.CTkFrame):
 
@@ -99,7 +95,7 @@ class SecondFrame(ctk.CTkFrame):
         self.lager_table.grid_forget()
 
         lager_daten_sql = cursor.execute(f'''SELECT artikel, hersteller, model, sn, bemerkung 
-                                             FROM inventur WHERE username = "lager"''')
+                                             FROM lager''')
         lager_daten_list = [row for row in lager_daten_sql]
 
         for count, record in enumerate(lager_daten_list):
@@ -195,11 +191,9 @@ class SecondFrame(ctk.CTkFrame):
                                                            vorname, nachname_get))
 
     def confirm_function(self, vorname, nachname):
-
         ctk.CTkLabel(self.dialog_mitarbeiter, font=ctk.CTkFont(size=25, weight="bold"),
-                     text=f"{vorname} {nachname} bekommt die Waren:").grid(row=2, column=0,
-                                                                           columnspan=2, padx=(50, 0), pady=(45, 15),
-                                                                           sticky="w")
+                     text=f"{vorname} {nachname} bekommt die Waren:").grid(row=2, column=0, padx=(50, 0), pady=(45, 15),
+                                                                           columnspan=2, sticky="w")
 
         for row in self.empty_table.get_children():
             sofort_label = ' '.join(str(x) for x in self.empty_table.item(row)['values'][:4])
@@ -212,6 +206,7 @@ class SecondFrame(ctk.CTkFrame):
         self.data_entry = ctk.CTkEntry(self.dialog_mitarbeiter, height=35, placeholder_text="dd.mm.YYYY",
                                        font=ctk.CTkFont(size=19))
         self.data_entry.grid(row=14, column=0, sticky="w", padx=(230, 0), pady=20, columnspan=3)
+
         self.data_get = ctk.CTkButton(self.dialog_mitarbeiter, width=45, text="", image=self.image_pfeil,
                                       command=lambda: self.button_active(self.data_entry.get()))
         self.data_get.grid(row=14, column=0, columnspan=3)
@@ -221,23 +216,21 @@ class SecondFrame(ctk.CTkFrame):
                                             AND nachname = "{nachname}"''').fetchone()
         abteilung = abteilung_info[0]
         chef = abteilung_info[1]
-
         self.top_level_confirm_button = ctk.CTkButton(self.dialog_mitarbeiter, width=200, height=45,
                                                       text="Bestätigen", state="disabled",
                                                       font=ctk.CTkFont(size=21, weight="bold"),
                                                       command=lambda: self.confirm_command(vorname, nachname,
-                                                                                           abteilung, chef))
+                                                                                           abteilung, chef,
+                                                                                           self.data_entry.get()))
         self.top_level_confirm_button.grid(row=15, column=0, columnspan=3, pady=45, sticky="s")
 
     def button_active(self, date):
-
         if len(date) == 10:
             self.top_level_confirm_button.configure(state="normal")
         else:
             pass
 
-    def confirm_command(self, vorname, nachname, abteilung, chef):
-
+    def confirm_command(self, vorname, nachname, abteilung, chef, date):
         abteilung_dict = {'name': vorname,
                           'nachname': nachname,
                           'abteilung': abteilung,
@@ -247,9 +240,18 @@ class SecondFrame(ctk.CTkFrame):
             hersteller = self.empty_table.item(value)['values'][1]
             model = self.empty_table.item(value)['values'][2]
             seriennummer = self.empty_table.item(value)['values'][3]
+            bemerkung = self.empty_table.item(value)['values'][4]
 
-            cursor.execute(f'''UPDATE inventur 
-                               SET username =  "{vorname}", nachname = "{nachname}"
+            cursor.execute(f'''INSERT INTO 
+                               inventur (username, nachname, artikel, hersteller, model, sn, bemerkung, date)
+                               SELECT "{vorname}", "{nachname}", "{artikel}", 
+                               "{hersteller}", "{str(model)}", "{str(seriennummer)}", "{str(bemerkung)}", "{str(date)}"
+                               FROM lager
+                               WHERE artikel = "{artikel}" 
+                               AND hersteller = "{hersteller}" 
+                               AND model = "{str(model)}" 
+                               AND sn = "{str(seriennummer)}"''')
+            cursor.execute(f'''DELETE FROM lager 
                                WHERE artikel = "{artikel}" 
                                AND hersteller = "{hersteller}" 
                                AND model = "{str(model)}" 
@@ -267,8 +269,6 @@ class SecondFrame(ctk.CTkFrame):
         self.empty_table.delete(*self.empty_table.get_children())
 
     def word_datei(self, abteilung_dict, vorname, nachname):
-
-        #default_word_datei = ("default_protokoll.docx")
         word_datei = DocxTemplate("default_protokoll.docx")
         word_datei.render(abteilung_dict)
 
@@ -294,7 +294,6 @@ class SecondFrame(ctk.CTkFrame):
         confirm_button.grid(row=16, column=0, columnspan=2)
 
     def open(self, end_word):
-
         subprocess.Popen(['start', end_word], shell=True)
         self.dialog_mitarbeiter.destroy()
         self.zuweisen_button.configure(state="disabled")
