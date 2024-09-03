@@ -5,6 +5,8 @@ from PIL import Image
 import sqlite3
 
 date_today = date.today().strftime("%d.%m.%Y")
+
+
 class FirstFrame(ctk.CTkFrame):
 
     def __init__(self, master):
@@ -24,7 +26,8 @@ class FirstFrame(ctk.CTkFrame):
         # Labelserstellung
         self.artikel_label = ctk.CTkLabel(self, text="Artikel", font=ctk.CTkFont("Calibri", size=22, weight="bold"))
         self.artikel_label.grid(row=1, column=1, pady=15, sticky="w")
-        self.hersteller_label = ctk.CTkLabel(self, text="Hersteller", font=ctk.CTkFont("Calibri", size=22, weight="bold"))
+        self.hersteller_label = ctk.CTkLabel(self, text="Hersteller",
+                                             font=ctk.CTkFont("Calibri", size=22, weight="bold"))
         self.hersteller_label.grid(row=2, column=1, pady=15, sticky="w")
         self.model_label = ctk.CTkLabel(self, text="Model", font=ctk.CTkFont("Calibri", size=22, weight="bold"))
         self.model_label.grid(row=3, column=1, pady=15, sticky="w")
@@ -60,10 +63,9 @@ class FirstFrame(ctk.CTkFrame):
                                             command=self.first_frame_writing_data)
         self.button_confirm.grid(row=7, column=2, pady=(55, 15))
         self.button_clear = ctk.CTkButton(self, text="Clear all", corner_radius=7, height=45, width=210,
-                                            fg_color="gray", hover_color="#C52233",
-                                            font=ctk.CTkFont("Calibri", size=14), command=self.first_frame_clear_all)
+                                          fg_color="gray", hover_color="#C52233",
+                                          font=ctk.CTkFont("Calibri", size=14), command=self.first_frame_clear_all)
         self.button_clear.grid(row=8, column=2, pady=(55, 15))
-
 
     def change_artikel(self, event):
 
@@ -77,19 +79,22 @@ class FirstFrame(ctk.CTkFrame):
         config = configparser.ConfigParser()
         config.read("config.ini", encoding="utf-8")
 
-        #Erstellen List im List mit der Werten
+        #Erstellen List im List mit deт Werten
+        # [['Smartphone'], ['Bildschirm'], ['Laptop'], ['Transponder chip']...]
 
         werte_list = []
         for werte in config['wert']['werte'].split(','):
-            sub_list_wert = []
-            sub_list_wert.append(werte)
-            werte_list.append(sub_list_wert)                                                 #[['Smartphone'], ['Bildschirm'], ['Laptop'], ['Transponderchip']...]
+            sub_list_wert = [werte]
+            werte_list.append(sub_list_wert)
 
         # Falsche Werten zum bestimmte Liste hinzu
+        # [['Smartphone',...], ['Bildschirm',...], ['Laptop',...], ['Transponder chip',...],...]
+        # [['Smartphone', 'handy'...], ['Bildschirm', 'monitor'...], ['Laptop', 'notebook'...]..]
 
         for wert_num in range(len(werte_list)):
-            for falsches_wert in config['wert'][werte_list[wert_num][0]].split(','):         #[['Smartphone',...], ['Bildschirm',...], ['Laptop',...], ['Transponderchip',...],...]
-                werte_list[wert_num].append(falsches_wert)                                   #[['Smartphone', 'handy'...], ['Bildschirm', 'monitor'...], ['Laptop','notebook'...], ['Transponderchip','chip'...]..]
+            for falsches_wert in config['wert'][werte_list[wert_num][0]].split(','):
+                werte_list[wert_num].append(
+                    falsches_wert)
 
         # Die Werte werden durch die richtigen ersetzt
 
@@ -106,7 +111,8 @@ class FirstFrame(ctk.CTkFrame):
 
             connection = sqlite3.connect('my_database.db')
             cursor = connection.cursor()
-            cursor.execute(f'''INSERT INTO inventur (username, nachname, artikel, hersteller, model, sn, bemerkung, date) 
+            cursor.execute(f'''INSERT INTO 
+                               inventur (username, nachname, artikel, hersteller, model, sn, bemerkung, date) 
                                VALUES ("lager", "lager",
                                "{self.artikel_entry.get().capitalize().strip()}",
                                "{self.hersteller_entry.get().capitalize().capitalize().strip()}",
@@ -123,7 +129,7 @@ class FirstFrame(ctk.CTkFrame):
         else:
             self.label_access.grid_forget()
             self.label_error_artikel.grid(row=1, column=3)
-            self.label_error_confirm.grid(row=7, column=2, padx=(450,0), pady=(35, 0))
+            self.label_error_confirm.grid(row=7, column=2, padx=(450, 0), pady=(35, 0))
 
         def label_delete(event):
             self.label_error_artikel.grid_forget()
@@ -131,6 +137,7 @@ class FirstFrame(ctk.CTkFrame):
             self.label_access.grid_forget()
             self.datum_entry.delete(0, "end")
             self.datum_entry.insert(0, date_today)
+
         self.artikel_entry.bind("<KeyRelease>", label_delete)
 
     def first_frame_clear_all(self):

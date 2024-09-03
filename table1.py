@@ -2,12 +2,13 @@ import customtkinter as ctk
 import custom_treeview as ctv
 import sqlite3
 
+
 class Table1(ctk.CTkFrame):
 
     def __init__(self, master):
         super().__init__(master, fg_color="transparent")
 
-        self.sort_function = ctv.CustomTreeView().sort_function
+        self.sort_function = ctv.sort_function
 
         self.grid_columnconfigure(0, weight=1)
         self.grid_rowconfigure(0, weight=1)
@@ -16,7 +17,7 @@ class Table1(ctk.CTkFrame):
             "column1", "column2", "column3", "column4", "column5"))
 
         self.tree_scroll_lager = ctk.CTkScrollbar(self, command=self.treeview_lager.yview)
-        self.tree_scroll_lager.grid(row=0, column=0, sticky="nse", padx=(0,40), pady=(35, 20))
+        self.tree_scroll_lager.grid(row=0, column=0, sticky="nse", padx=(0, 40), pady=(35, 20))
 
         self.treeview_lager.configure(yscrollcommand=self.tree_scroll_lager.set)
         self.treeview_lager.heading("#0", text="Item")
@@ -31,7 +32,7 @@ class Table1(ctk.CTkFrame):
         self.treeview_lager.heading("column5", text="Bemerkung",
                                     command=lambda: self.sort_function("column5", self.treeview_lager, False))
 
-        self.treeview_lager.column("#0", width=0, minwidth=0, stretch=0)
+        self.treeview_lager.column("#0", width=0, minwidth=0, stretch=False)
         self.treeview_lager.column("column1", width=180)
         self.treeview_lager.column("column2", width=180)
         self.treeview_lager.column("column3", width=260)
@@ -55,14 +56,13 @@ class Table1(ctk.CTkFrame):
 
         for count, record in enumerate(table1_values_list):
             tag = "even" if count % 2 == 0 else "odd"
-            self.treeview_lager.insert("", "end", iid=count, tags=(tag),
+            self.treeview_lager.insert("", "end", iid=count, tags=tag,
                                        values=(record[0], record[1], record[2], record[3], record[4]))
 
         self.treeview_lager.grid(row=0, column=0, sticky="nsew", pady=(35, 20), padx=40)
         self.sort_function("column1", self.treeview_lager, False)
 
     def clicker_table_1(self, event):
-
         self.dialog_table1 = ctk.CTkToplevel(self)
         self.dialog_table1.geometry(f"260x290+1200+450")
         self.dialog_table1.resizable(False, False)
@@ -106,7 +106,7 @@ class Table1(ctk.CTkFrame):
         self.bemerkung_table1.insert(0, self.values_table1[4].strip())
 
         self.confirm_button_table1 = ctk.CTkButton(self.dialog_table1, text="OK", command=self.update_record_table_1)
-        self.confirm_button_table1.grid(row=5, column=1,pady=(20, 4))
+        self.confirm_button_table1.grid(row=5, column=1, pady=(20, 4))
 
         self.delete_button_table1 = ctk.CTkButton(self.dialog_table1, text="Löschen", fg_color="#C52233",
                                                   hover_color="#F31B31", command=self.delete_command_table1)
@@ -138,7 +138,6 @@ class Table1(ctk.CTkFrame):
         self.dialog_table1.destroy()
 
     def delete_command_table1(self):
-
         connection = sqlite3.connect('my_database.db')
         cursor = connection.cursor()
         cursor.execute(f'''DELETE FROM inventur 

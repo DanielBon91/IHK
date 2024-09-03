@@ -3,6 +3,8 @@ from tkinter import messagebox
 from tkinter.ttk import Style
 import customtkinter as ctk
 import custom_treeview as ctv
+
+
 class Table3(ctk.CTkFrame):
 
     def __init__(self, master):
@@ -10,7 +12,7 @@ class Table3(ctk.CTkFrame):
         self.grid_columnconfigure(0, weight=1)
         self.grid_rowconfigure(0, weight=1)
 
-        self.sort_function = ctv.CustomTreeView().sort_function
+        self.sort_function = ctv.sort_function
 
         self.style_treeview_style = Style()
         self.style_treeview_style.configure("Treeview", rowheight=25)
@@ -19,7 +21,7 @@ class Table3(ctk.CTkFrame):
             "column1", "column2", "column3", "column4"))
 
         self.tree_scroll = ctk.CTkScrollbar(self, command=self.treeview_struktur.yview)
-        self.tree_scroll.grid(row=0, column=0, sticky="nse", padx=(0,40), pady=(35, 20))
+        self.tree_scroll.grid(row=0, column=0, sticky="nse", padx=(0, 40), pady=(35, 20))
 
         self.treeview_struktur.configure(yscrollcommand=self.tree_scroll.set)
 
@@ -33,7 +35,7 @@ class Table3(ctk.CTkFrame):
         self.treeview_struktur.heading("column4", text="Vorgesetzter",
                                        command=lambda: self.sort_function("column4", self.treeview_struktur, False))
 
-        self.treeview_struktur.column("#0", width=0, minwidth=0, stretch=0)
+        self.treeview_struktur.column("#0", width=0, minwidth=0, stretch=False)
         self.treeview_struktur.column("column1", width=220)
         self.treeview_struktur.column("column2", width=220)
         self.treeview_struktur.column("column3", width=200)
@@ -56,7 +58,7 @@ class Table3(ctk.CTkFrame):
 
         for count, record in enumerate(table3_values_list):
             tag = "even" if count % 2 == 0 else "odd"
-            self.treeview_struktur.insert("", "end", iid=count, tags=(tag),
+            self.treeview_struktur.insert("", "end", iid=count, tags=tag,
                                           values=(record[0], record[1], record[2], record[3]))
 
         self.treeview_struktur.grid(row=0, column=0, sticky="nsew", pady=(35, 20), padx=40)
@@ -96,10 +98,12 @@ class Table3(ctk.CTkFrame):
         self.vorgesetzter_table3.insert(0, self.values_table3[3])
 
         self.confirm_button_table3 = ctk.CTkButton(self.dialog_table3, text="OK",
-                                                command=self.update_record_table_3).grid(row=5, column=1, pady=(30, 4))
+                                                   command=self.update_record_table_3).grid(row=5, column=1,
+                                                                                            pady=(30, 4))
 
         self.delete_button_table3 = ctk.CTkButton(self.dialog_table3, text="Löschen", fg_color="#C52233",
-                               hover_color="#F31B31", command=self.delete_command_table3).grid(row=6, column=1, pady=4)
+                                                  hover_color="#F31B31",
+                                                  command=self.delete_command_table3).grid(row=6, column=1, pady=4)
 
     def update_record_table_3(self):
 
@@ -127,8 +131,8 @@ class Table3(ctk.CTkFrame):
     def delete_command_table3(self):
 
         delete = messagebox.askyesno("Bitte bestätigen",
-                                    f"Sind Sie sicher, dass Sie den Mitarbeiter "
-                                    f"{self.values_table3[0]} {self.values_table3[1]} löschen möchten?")
+                                     f"Sind Sie sicher, dass Sie den Mitarbeiter "
+                                     f"{self.values_table3[0]} {self.values_table3[1]} löschen möchten?")
 
         if delete:
             self.treeview_struktur.item(self.selected_table3, text="",

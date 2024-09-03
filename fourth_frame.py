@@ -5,6 +5,7 @@ from PIL import Image
 connection = sqlite3.connect('my_database.db')
 cursor = connection.cursor()
 
+
 class FourthFrame(ctk.CTkFrame):
 
     def __init__(self, master):
@@ -31,7 +32,7 @@ class FourthFrame(ctk.CTkFrame):
                                           font=ctk.CTkFont("Calibri", size=23))
         self.vorname_entry.grid(row=1, column=2)
         self.nachname_entry = ctk.CTkEntry(self, width=250, height=45, corner_radius=7,
-                                          font=ctk.CTkFont("Calibri", size=23))
+                                           font=ctk.CTkFont("Calibri", size=23))
         self.nachname_entry.grid(row=2, column=2)
 
         # Combo create
@@ -48,11 +49,10 @@ class FourthFrame(ctk.CTkFrame):
         self.button_confirm = ctk.CTkButton(self, text="Hinzufügen", width=235, height=65,
                                             font=ctk.CTkFont("Calibri", size=28), corner_radius=7,
                                             command=lambda: self.mitarbeiter_add(
-                                                            self.vorname_entry.get().strip().capitalize(),
-                                                            self.nachname_entry.get().strip().capitalize(),
-                                                            self.abteilung_combobox.get()))
+                                                self.vorname_entry.get().strip().capitalize(),
+                                                self.nachname_entry.get().strip().capitalize(),
+                                                self.abteilung_combobox.get()))
         self.button_confirm.grid(row=5, column=1, columnspan=2, pady=(65, 0))
-
 
     def mitarbeiter_add(self, vorname, nachname, abteilung):
 
@@ -65,7 +65,8 @@ class FourthFrame(ctk.CTkFrame):
         repeat_liste = [(value[0].lower() + " " + value[1].lower()) for value in repeat_list_sql.fetchall()]
 
         if vorname.lower() + ' ' + nachname.lower() in repeat_liste:
-            self.label_error.configure(text=f"Der Mitarbeiter {vorname} {nachname}\nexistiert bereits", text_color="Yellow")
+            self.label_error.configure(text=f"Der Mitarbeiter {vorname} {nachname}\nexistiert bereits",
+                                       text_color="Yellow")
             self.label_error.grid(row=6, column=1, columnspan=2, sticky="n")
             self.after(4000, lambda: self.label_error.grid_forget())
             self.vorname_entry.delete(0, "end")
@@ -85,7 +86,7 @@ class FourthFrame(ctk.CTkFrame):
             four_frame_label_hinzu = ctk.CTkLabel(self, font=ctk.CTkFont("Calibri", size=22), text_color="#9fd8cb",
                                                   justify=ctk.LEFT, image=self.users, compound="top",
                                                   text=f"\nMitarbeiter: {vorname} {nachname}"
-                                                       f"\nAbtelung: {abteilung}\n"
+                                                       f"\nAbteilung: {abteilung}\n"
                                                        f"Vorgesetzter: {vorgesetzter_dict[abteilung]}\n"
                                                        f"\nwurde erfolgreich hinzugefügt ✓", anchor="w")
 

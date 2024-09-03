@@ -9,6 +9,7 @@ from docxtpl import DocxTemplate
 connection = sqlite3.connect('my_database.db')
 cursor = connection.cursor()
 
+
 class SecondFrame(ctk.CTkFrame):
 
     def __init__(self, master):
@@ -17,10 +18,10 @@ class SecondFrame(ctk.CTkFrame):
         self.grid_columnconfigure(0, weight=1)
         self.grid_rowconfigure(0, weight=1)
 
-        self.sort_function = ctv.CustomTreeView().sort_function
+        self.sort_function = ctv.sort_function
 
         # Bilderstellung
-        self.image_uebergabe = ctk.CTkImage(Image.open("images/uebergabe.png"), size=(35, 35))
+        self.image_abgabe = ctk.CTkImage(Image.open("images/abgabe.png"), size=(35, 35))
         self.image_plus = ctk.CTkImage(Image.open("images/plus.png"), size=(35, 35))
         self.image_minus = ctk.CTkImage(Image.open("images/minus.png"), size=(35, 35))
         self.image_pfeil = ctk.CTkImage(Image.open("images/pfeil.png"), size=(35, 35))
@@ -43,7 +44,7 @@ class SecondFrame(ctk.CTkFrame):
         self.lager_table.heading("column5", text="Bemerkung",
                                  command=lambda: self.sort_function("column5", self.lager_table, False))
 
-        self.lager_table.column("#0", width=0, minwidth=0, stretch=0)
+        self.lager_table.column("#0", width=0, minwidth=0, stretch=False)
         self.lager_table.column("column1", width=120)
         self.lager_table.column("column2", width=120)
         self.lager_table.column("column3")
@@ -66,7 +67,7 @@ class SecondFrame(ctk.CTkFrame):
         self.empty_table.heading("column5", text="Bemerkung",
                                  command=lambda: self.sort_function("column5", self.empty_table, False))
 
-        self.empty_table.column("#0", width=0, minwidth=0, stretch=0)
+        self.empty_table.column("#0", width=0, minwidth=0, stretch=False)
         self.empty_table.column("column1", width=120)
         self.empty_table.column("column2", width=120)
         self.empty_table.column("column3")
@@ -76,8 +77,8 @@ class SecondFrame(ctk.CTkFrame):
 
         # Erstellung der Tasten
         self.zuweisen_button = ctk.CTkButton(self, text="Die Waren übergebe an...", width=350, height=80,
-                                             state="disabled", image=self.image_uebergabe,
-                                             command=self.uebergabe_function, corner_radius=7,
+                                             state="disabled", image=self.image_abgabe,
+                                             command=self.abgabe_function, corner_radius=7,
                                              font=ctk.CTkFont(size=25))
         self.zuweisen_button.grid(row=4, column=0, pady=(0, 20))
         self.plus_button = ctk.CTkButton(self, text="", fg_color="#399E5A", corner_radius=7, hover_color="#328E3D",
@@ -103,8 +104,8 @@ class SecondFrame(ctk.CTkFrame):
 
         for count, record in enumerate(lager_daten_list):
             tag = "even" if count % 2 == 0 else "odd"
-            self.lager_table.insert("", "end", iid=count, tags=(tag),
-                                       values=(record[0], record[1], record[2], record[3], record[4]))
+            self.lager_table.insert("", "end", iid=count, tags=tag,
+                                    values=(record[0], record[1], record[2], record[3], record[4]))
 
         self.lager_table.grid(row=0, column=0, sticky="nsew", pady=(35, 20), padx=40)
         self.sort_function("column1", self.lager_table, False)
@@ -143,7 +144,7 @@ class SecondFrame(ctk.CTkFrame):
         if len(self.empty_table.get_children()) == 0:
             self.zuweisen_button.configure(state="disabled")
 
-    def uebergabe_function(self):
+    def abgabe_function(self):
 
         self.dialog_mitarbeiter = ctk.CTkToplevel(self)
         self.dialog_mitarbeiter.title("Bitte auswählen")
@@ -158,21 +159,24 @@ class SecondFrame(ctk.CTkFrame):
                                                              font=ctk.CTkFont("Calibri", weight="bold", size=25))
         self.dialog_mitarbeiter_label_vorname.grid(row=0, column=0, sticky="w", padx=(35, 0), pady=15)
         self.dialog_mitarbeiter_label_nachname = ctk.CTkLabel(self.dialog_mitarbeiter, text="Nachname",
-                                                             font=ctk.CTkFont("Calibri", weight="bold", size=25))
+                                                              font=ctk.CTkFont("Calibri", weight="bold", size=25))
         self.dialog_mitarbeiter_label_nachname.grid(row=0, column=1, sticky="w", padx=(35, 0), pady=15)
 
         mitarbeiter_list = cursor.execute(f'''SELECT DISTINCT vorname FROM users ORDER BY vorname''')
         vorname_list = [row[0] for row in mitarbeiter_list]
 
         self.dialog_mitarbeiter_box_vorname = ctk.CTkOptionMenu(self.dialog_mitarbeiter, width=200, values=vorname_list,
-                                                        command=self.vorwahl_nachname,
-                                                        font=ctk.CTkFont("Calibri", size=21, weight="bold"),
-                                                        dropdown_font=ctk.CTkFont("Calibri", size=19, weight="bold"))
+                                                                command=self.vorwahl_nachname,
+                                                                font=ctk.CTkFont("Calibri", size=21, weight="bold"),
+                                                                dropdown_font=ctk.CTkFont("Calibri", size=19,
+                                                                                          weight="bold"))
         self.dialog_mitarbeiter_box_vorname.grid(row=1, column=0)
         self.dialog_mitarbeiter_box_vorname.set("Bitte auswählen")
         self.dialog_mitarbeiter_box_nachname = ctk.CTkOptionMenu(self.dialog_mitarbeiter, state="disabled",
-                                                        width=200, font=ctk.CTkFont("Calibri", size=21, weight="bold"),
-                                                        dropdown_font=ctk.CTkFont("Calibri", size=19, weight="bold"))
+                                                                 width=200,
+                                                                 font=ctk.CTkFont("Calibri", size=21, weight="bold"),
+                                                                 dropdown_font=ctk.CTkFont("Calibri", size=19,
+                                                                                           weight="bold"))
         self.dialog_mitarbeiter_box_nachname.grid(row=1, column=1)
         self.dialog_mitarbeiter_box_nachname.set("Bitte auswählen")
 
@@ -187,13 +191,15 @@ class SecondFrame(ctk.CTkFrame):
 
         nachname = self.dialog_mitarbeiter_box_nachname.get()
         self.dialog_mitarbeiter_box_nachname.configure(values=nachname_list,
-                    command=lambda nachname_get = nachname: self.confirm_function(vorname, nachname_get))
+                                                       command=lambda nachname_get=nachname: self.confirm_function(
+                                                           vorname, nachname_get))
 
     def confirm_function(self, vorname, nachname):
 
         ctk.CTkLabel(self.dialog_mitarbeiter, font=ctk.CTkFont(size=25, weight="bold"),
-                                              text=(f"{vorname} {nachname} bekomt die Waren:")).grid(row=2, column=0,
-                                              columnspan=2, padx=(50, 0), pady=(45, 15), sticky="w")
+                     text=f"{vorname} {nachname} bekommt die Waren:").grid(row=2, column=0,
+                                                                           columnspan=2, padx=(50, 0), pady=(45, 15),
+                                                                           sticky="w")
 
         for row in self.empty_table.get_children():
             sofort_label = ' '.join(str(x) for x in self.empty_table.item(row)['values'][:4])
@@ -201,8 +207,10 @@ class SecondFrame(ctk.CTkFrame):
                          text=f"- {sofort_label}").grid(column=0, columnspan=2, sticky="w", padx=(75, 0))
 
         ctk.CTkLabel(self.dialog_mitarbeiter, text="Übergabedatum:",
-        font=ctk.CTkFont(size=19, weight="bold")).grid(row=14, column=0, columnspan=3, sticky="w", padx=(60, 0), pady=20)
-        self.data_entry = ctk.CTkEntry(self.dialog_mitarbeiter, height=35, placeholder_text="dd.mm.YYYY", font=ctk.CTkFont(size=19))
+                     font=ctk.CTkFont(size=19, weight="bold")).grid(row=14, column=0, columnspan=3, sticky="w",
+                                                                    padx=(60, 0), pady=20)
+        self.data_entry = ctk.CTkEntry(self.dialog_mitarbeiter, height=35, placeholder_text="dd.mm.YYYY",
+                                       font=ctk.CTkFont(size=19))
         self.data_entry.grid(row=14, column=0, sticky="w", padx=(230, 0), pady=20, columnspan=3)
         self.data_get = ctk.CTkButton(self.dialog_mitarbeiter, width=45, text="", image=self.image_pfeil,
                                       command=lambda: self.button_active(self.data_entry.get()))
@@ -215,9 +223,10 @@ class SecondFrame(ctk.CTkFrame):
         chef = abteilung_info[1]
 
         self.top_level_confirm_button = ctk.CTkButton(self.dialog_mitarbeiter, width=200, height=45,
-                                        text="Bestätigen", state="disabled",
-                                        font=ctk.CTkFont(size=21, weight="bold"),
-                                        command=lambda: self.bestaetigung_command(vorname, nachname, abteilung, chef))
+                                                      text="Bestätigen", state="disabled",
+                                                      font=ctk.CTkFont(size=21, weight="bold"),
+                                                      command=lambda: self.confirm_command(vorname, nachname,
+                                                                                           abteilung, chef))
         self.top_level_confirm_button.grid(row=15, column=0, columnspan=3, pady=45, sticky="s")
 
     def button_active(self, date):
@@ -227,7 +236,7 @@ class SecondFrame(ctk.CTkFrame):
         else:
             pass
 
-    def bestaetigung_command(self, vorname, nachname, abteilung, chef):
+    def confirm_command(self, vorname, nachname, abteilung, chef):
 
         abteilung_dict = {'name': vorname,
                           'nachname': nachname,

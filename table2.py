@@ -4,23 +4,24 @@ import customtkinter as ctk
 import custom_treeview as ctv
 from PIL import Image
 
+
 class Table2(ctk.CTkFrame):
 
     def __init__(self, master):
         super().__init__(master, fg_color="transparent")
 
-        self.sort_function = ctv.CustomTreeView().sort_function
+        self.sort_function = ctv.sort_function
 
         self.grid_columnconfigure(0, weight=1)
         self.grid_rowconfigure(0, weight=1)
 
-        self.image_rueckgabe = ctk.CTkImage(Image.open("images/rueckgabe.png"), size=(35, 35))
+        self.image_return = ctk.CTkImage(Image.open("images/return.png"), size=(35, 35))
 
         self.treeview_inventar = ctv.CustomTreeView(self, columns=(
             "column1", "column2", "column3", "column4", "column5", "column6", "column7"))
 
         self.tree_scroll_invent = ctk.CTkScrollbar(self, command=self.treeview_inventar.yview)
-        self.tree_scroll_invent.grid(row=0, column=0, sticky="nse", padx=(0,40), pady=(35, 20))
+        self.tree_scroll_invent.grid(row=0, column=0, sticky="nse", padx=(0, 40), pady=(35, 20))
 
         self.treeview_inventar.configure(yscrollcommand=self.tree_scroll_invent.set)
 
@@ -40,7 +41,7 @@ class Table2(ctk.CTkFrame):
         self.treeview_inventar.heading("column7", text="Bemerkung",
                                        command=lambda: self.sort_function("column7", self.treeview_inventar, False))
 
-        self.treeview_inventar.column("#0", width=0, minwidth=0, stretch=0)
+        self.treeview_inventar.column("#0", width=0, minwidth=0, stretch=False)
         self.treeview_inventar.column("column1", width=130)
         self.treeview_inventar.column("column2", width=130)
         self.treeview_inventar.column("column3", width=180)
@@ -51,11 +52,12 @@ class Table2(ctk.CTkFrame):
 
         self.treeview_inventar.bind("<Double-1>", self.clicker_table_2)
 
-        self.rueckgabe_button = ctk.CTkButton(self, width=300, height=70, corner_radius=7,
-                                              text="Rückgabe machen", image=self.image_rueckgabe,
-                                              fg_color="#328E3D", hover_color="#399E5A",
-                                              font=ctk.CTkFont(size=21, weight="bold"),
-                                              command=self.rueckgabe_fuction).grid(row=1, column=0, padx=40, pady=25, sticky="w")
+        self.return_button = ctk.CTkButton(self, width=300, height=70, corner_radius=7,
+                                           text="Rückgabe machen", image=self.image_return,
+                                           fg_color="#328E3D", hover_color="#399E5A",
+                                           font=ctk.CTkFont(size=21, weight="bold"),
+                                           command=self.return_function).grid(row=1, column=0, padx=40, pady=25,
+                                                                              sticky="w")
 
         self.search = ctk.CTkEntry(self, placeholder_text="Suchen...", corner_radius=7, width=200)
         self.search.grid(row=1, column=0, padx=15, pady=25)
@@ -78,8 +80,9 @@ class Table2(ctk.CTkFrame):
 
         for count, record in enumerate(table2_values_list):
             tag = "even" if count % 2 == 0 else "odd"
-            self.treeview_inventar.insert("", "end", iid=count, tags=(tag),
-                                   values=(record[0], record[1], record[2], record[3], record[4], record[5], record[6]))
+            self.treeview_inventar.insert("", "end", iid=count, tags=tag,
+                                          values=(
+                                          record[0], record[1], record[2], record[3], record[4], record[5], record[6]))
 
         self.treeview_inventar.grid(row=0, column=0, sticky="nsew", pady=(35, 20), padx=40)
         self.sort_function("column1", self.treeview_inventar, False)
@@ -93,11 +96,16 @@ class Table2(ctk.CTkFrame):
         self.dialog_table2.grid_columnconfigure(0, weight=1)
         self.dialog_table2.grid_columnconfigure(1, weight=1)
 
-        self.artikel_table2_label = ctk.CTkLabel(self.dialog_table2, text="Artikel").grid(row=0, column=0, pady=(16, 4), sticky="e")
-        self.hersteller_table2_label = ctk.CTkLabel(self.dialog_table2, text="Hersteller").grid(row=1, column=0, pady=4, sticky="e")
-        self.model_table2_label = ctk.CTkLabel(self.dialog_table2, text="Model").grid(row=2, column=0, pady=4, sticky="e")
-        self.sn_table2_label = ctk.CTkLabel(self.dialog_table2, text="Seriennummer").grid(row=3, column=0, pady=4, sticky="e")
-        self.bemerkung_table2_label = ctk.CTkLabel(self.dialog_table2, text="Bemerkung").grid(row=4, column=0, pady=4, sticky="e")
+        self.artikel_table2_label = ctk.CTkLabel(self.dialog_table2, text="Artikel").grid(row=0, column=0, pady=(16, 4),
+                                                                                          sticky="e")
+        self.hersteller_table2_label = ctk.CTkLabel(self.dialog_table2, text="Hersteller").grid(row=1, column=0, pady=4,
+                                                                                                sticky="e")
+        self.model_table2_label = ctk.CTkLabel(self.dialog_table2, text="Model").grid(row=2, column=0, pady=4,
+                                                                                      sticky="e")
+        self.sn_table2_label = ctk.CTkLabel(self.dialog_table2, text="Seriennummer").grid(row=3, column=0, pady=4,
+                                                                                          sticky="e")
+        self.bemerkung_table2_label = ctk.CTkLabel(self.dialog_table2, text="Bemerkung").grid(row=4, column=0, pady=4,
+                                                                                              sticky="e")
 
         self.artikel_table2 = ctk.CTkEntry(self.dialog_table2)
         self.artikel_table2.grid(row=0, column=1, pady=(16, 4))
@@ -121,15 +129,17 @@ class Table2(ctk.CTkFrame):
         self.sn_table2.insert(0, self.values_table2[5])
         self.bemerkung_table2.insert(0, self.values_table2[6])
 
-        ctk.CTkButton(self.dialog_table2, text="OK", command=self.update_record_table_2).grid(row=5, column=1, pady=(30, 4))
-    def rueckgabe_fuction(self):
+        ctk.CTkButton(self.dialog_table2, text="OK", command=self.update_record_table_2).grid(row=5, column=1,
+                                                                                              pady=(30, 4))
 
-        rueckgabe_bestaetigen = messagebox.askyesno("Bitte bestätigen", "Sind Sie sicher?")
+    def return_function(self):
+
+        return_confirm = messagebox.askyesno("Bitte bestätigen", "Sind Sie sicher?")
 
         connection = sqlite3.connect('my_database.db')
         cursor = connection.cursor()
 
-        if rueckgabe_bestaetigen:
+        if return_confirm:
             for rows in self.treeview_inventar.selection():
                 cursor.execute(f'''UPDATE inventur SET username = "lager", nachname = "lager"
                                    WHERE artikel = "{self.treeview_inventar.item(rows, 'values')[2]}"
@@ -170,5 +180,5 @@ class Table2(ctk.CTkFrame):
 
         self.dialog_table2.destroy()
 
-    def search_funktion_event(self, e):
+    def search_funktion_event(self, event):
         self.second_table_function()
