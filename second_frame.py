@@ -6,6 +6,7 @@ from PIL import Image
 from docxtpl import DocxTemplate
 from sql_connection import connection, cursor
 
+
 class SecondFrame(ctk.CTkFrame):
 
     def __init__(self, master):
@@ -88,7 +89,6 @@ class SecondFrame(ctk.CTkFrame):
         self.empty_table.bind("<Double-1>", self.minus_click)
 
     def second_frame_lager_tabelle(self):
-
         self.grid(row=0, column=1, sticky="nsew")
 
         self.lager_table.delete(*self.lager_table.get_children())
@@ -107,29 +107,29 @@ class SecondFrame(ctk.CTkFrame):
         self.sort_function("column1", self.lager_table, False)
 
     def plus_click(self, event):
-
         self.plus_function()
 
     def plus_function(self):
-
-        for rows in self.lager_table.selection():
-            self.empty_table.insert("", "end", values=(self.lager_table.item(rows, 'values')[0],
-                                                       self.lager_table.item(rows, 'values')[1],
-                                                       self.lager_table.item(rows, 'values')[2],
-                                                       self.lager_table.item(rows, 'values')[3],
-                                                       self.lager_table.item(rows, 'values')[4]))
-            self.lager_table.delete(self.lager_table.selection()[0])
+        if len(self.empty_table.get_children()) != 10:
+            for rows in self.lager_table.selection():
+                self.empty_table.insert("", "end", values=(self.lager_table.item(rows, 'values')[0],
+                                                           self.lager_table.item(rows, 'values')[1],
+                                                           self.lager_table.item(rows, 'values')[2],
+                                                           self.lager_table.item(rows, 'values')[3],
+                                                           self.lager_table.item(rows, 'values')[4]))
+                self.lager_table.delete(self.lager_table.selection()[0])
+        else:
+            self.plus_button.configure(state="disabled")
 
         if len(self.empty_table.get_children()) > 0:
             self.zuweisen_button.configure(state="normal")
 
     def minus_click(self, event):
-
         self.minus_function()
 
     def minus_function(self):
-
         for rows in self.empty_table.selection():
+            self.plus_button.configure(state="normal")
             self.lager_table.insert("", "end", values=(self.empty_table.item(rows, 'values')[0],
                                                        self.empty_table.item(rows, 'values')[1],
                                                        self.empty_table.item(rows, 'values')[2],
@@ -141,7 +141,6 @@ class SecondFrame(ctk.CTkFrame):
             self.zuweisen_button.configure(state="disabled")
 
     def abgabe_function(self):
-
         self.dialog_mitarbeiter = ctk.CTkToplevel(self)
         self.dialog_mitarbeiter.title("Bitte auswählen")
         self.dialog_mitarbeiter.geometry("800x750+1030+250")
@@ -177,7 +176,6 @@ class SecondFrame(ctk.CTkFrame):
         self.dialog_mitarbeiter_box_nachname.set("Bitte auswählen")
 
     def vorwahl_nachname(self, vorname):
-
         self.dialog_mitarbeiter_box_nachname.configure(state="normal")
         self.dialog_mitarbeiter_box_nachname.set("Bitte auswählen")
 
@@ -251,6 +249,7 @@ class SecondFrame(ctk.CTkFrame):
                                AND hersteller = "{hersteller}" 
                                AND model = "{str(model)}" 
                                AND sn = "{str(seriennummer)}"''')
+
             cursor.execute(f'''DELETE FROM lager 
                                WHERE artikel = "{artikel}" 
                                AND hersteller = "{hersteller}" 

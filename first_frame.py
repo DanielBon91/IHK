@@ -26,8 +26,7 @@ class FirstFrame(ctk.CTkFrame):
         # Labelserstellung
         self.artikel_label = ctk.CTkLabel(self, text="Artikel", font=ctk.CTkFont("Calibri", size=22, weight="bold"))
         self.artikel_label.grid(row=1, column=1, pady=15, sticky="w")
-        self.hersteller_label = ctk.CTkLabel(self, text="Hersteller",
-                                             font=ctk.CTkFont("Calibri", size=22, weight="bold"))
+        self.hersteller_label = ctk.CTkLabel(self, text="Hersteller", font=ctk.CTkFont("Calibri", size=22, weight="bold"))
         self.hersteller_label.grid(row=2, column=1, pady=15, sticky="w")
         self.model_label = ctk.CTkLabel(self, text="Model", font=ctk.CTkFont("Calibri", size=22, weight="bold"))
         self.model_label.grid(row=3, column=1, pady=15, sticky="w")
@@ -120,6 +119,8 @@ class FirstFrame(ctk.CTkFrame):
 
             connection.commit()
 
+            self.label_access.grid(row=7, column=2, padx=(450,0), pady=(35, 0))
+            self.after(5000, lambda: self.label_access.grid_forget())
             self.first_frame_clear_all()
 
         else:
@@ -149,5 +150,4 @@ class FirstFrame(ctk.CTkFrame):
         self.bemerkung_entry.delete("0.0", "end")
         self.label_error_artikel.grid_forget()
         self.label_error_confirm.grid_forget()
-        self.label_access.grid_forget()
         self.artikel_entry.focus_set()

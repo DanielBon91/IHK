@@ -1,6 +1,8 @@
+from tkinter import messagebox
 import customtkinter as ctk
 import custom_treeview as ctv
 from sql_connection import connection, cursor
+
 
 class Table1(ctk.CTkFrame):
 
@@ -47,7 +49,7 @@ class Table1(ctk.CTkFrame):
         self.treeview_lager.grid_forget()
 
         table1_values_sql = cursor.execute(f'''SELECT artikel, hersteller, model, sn, bemerkung 
-                                           FROM lager''')
+                                               FROM lager''')
         table1_values_list = [row for row in table1_values_sql]
 
         for count, record in enumerate(table1_values_list):
@@ -139,12 +141,18 @@ class Table1(ctk.CTkFrame):
         self.dialog_table1.destroy()
 
     def delete_command_table1(self):
-        cursor.execute(f'''DELETE FROM lager 
-                           WHERE artikel = "{self.artikel_table1.get()}" 
-                           AND hersteller="{self.hersteller_table1.get()}" 
-                           AND model="{self.model_table1.get()}" 
-                           AND sn ="{self.sn_table1.get()}"''')
-        connection.commit()
+        delete = messagebox.askyesno("Bitte bestätigen",
+                                     f"Sind Sie sicher, dass Sie den Artikel "
+                                     f"{self.values_table1[0]} {self.values_table1[1]} {self.values_table1[2]}"
+                                     f" löschen möchten?")
+
+        if delete:
+            cursor.execute(f'''DELETE FROM lager 
+                               WHERE artikel = "{self.artikel_table1.get()}" 
+                               AND hersteller="{self.hersteller_table1.get()}" 
+                               AND model="{self.model_table1.get()}" 
+                               AND sn ="{self.sn_table1.get()}"''')
+            connection.commit()
 
         self.treeview_lager.delete(self.selected_table1)
         self.dialog_table1.destroy()

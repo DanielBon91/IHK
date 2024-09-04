@@ -42,7 +42,6 @@ class FourthFrame(ctk.CTkFrame):
         self.abteilung_combobox.grid(row=3, column=2)
 
         # Button create
-
         self.button_confirm = ctk.CTkButton(self, text="Hinzufügen", width=235, height=65,
                                             font=ctk.CTkFont("Calibri", size=28), corner_radius=7,
                                             command=lambda: self.mitarbeiter_add(

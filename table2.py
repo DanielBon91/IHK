@@ -7,6 +7,7 @@ from sql_connection import connection, cursor
 
 date_today = date.today().strftime("%d.%m.%Y")
 
+
 class Table2(ctk.CTkFrame):
 
     def __init__(self, master):
@@ -172,7 +173,6 @@ class Table2(ctk.CTkFrame):
 
         if return_confirm:
             for rows in self.treeview_inventar.selection():
-
                 cursor.execute(f'''INSERT INTO lager (artikel, hersteller, model, sn, bemerkung, date)
                                    SELECT "{self.treeview_inventar.item(rows, 'values')[2]}",
                                           "{self.treeview_inventar.item(rows, 'values')[3]}",
@@ -186,22 +186,15 @@ class Table2(ctk.CTkFrame):
                                    AND model = "{self.treeview_inventar.item(rows, 'values')[4]}"
                                    AND sn = "{self.treeview_inventar.item(rows, 'values')[5]}"
                                    ''')
+
                 cursor.execute(f'''DELETE FROM inventur 
                                    WHERE artikel = "{self.treeview_inventar.item(rows, 'values')[2]}" 
                                    AND hersteller = "{self.treeview_inventar.item(rows, 'values')[3]}"
                                    AND model = "{self.treeview_inventar.item(rows, 'values')[4]}"
                                    AND sn = "{self.treeview_inventar.item(rows, 'values')[5]}"''')
-
-                #cursor.execute(f'''UPDATE inventur SET username = "lager", nachname = "lager"
-                #                   WHERE artikel = "{self.treeview_inventar.item(rows, 'values')[2]}"
-                #                   AND hersteller = "{self.treeview_inventar.item(rows, 'values')[3]}"
-                #                   AND model = "{self.treeview_inventar.item(rows, 'values')[4]}"
-                #                   AND sn = "{self.treeview_inventar.item(rows, 'values')[5]}"''')
                 connection.commit()
 
         else:
             pass
 
         self.second_table_function()
-
-

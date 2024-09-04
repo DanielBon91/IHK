@@ -13,8 +13,7 @@ class Table3(ctk.CTkFrame):
 
         self.sort_function = ctv.sort_function
 
-        self.treeview_struktur = ctv.CustomTreeView(self, columns=(
-            "column1", "column2", "column3", "column4"))
+        self.treeview_struktur = ctv.CustomTreeView(self, columns=("column1", "column2", "column3", "column4"))
 
         self.tree_scroll = ctk.CTkScrollbar(self, command=self.treeview_struktur.yview)
         self.tree_scroll.grid(row=0, column=0, sticky="nse", padx=(0, 40), pady=(35, 20))
@@ -108,7 +107,6 @@ class Table3(ctk.CTkFrame):
         self.update_record_table_3()
 
     def update_record_table_3(self):
-
         self.treeview_struktur.item(self.selected_table3, text="",
                                     values=(self.vorname_table3.get(),
                                             self.nachname_table3.get(),
@@ -123,6 +121,7 @@ class Table3(ctk.CTkFrame):
                                             AND nachname = "{self.values_table3[1]}"
                                             AND abteilung = "{self.values_table3[2]}"
                                             AND vorgesetzer = "{self.values_table3[3]}"''')
+
         cursor.execute(f'''UPDATE inventur SET username = "{self.vorname_table3.get()}",
                                                nachname = "{self.nachname_table3.get()}"
                                                WHERE username = "{self.values_table3[0]}"
@@ -132,16 +131,11 @@ class Table3(ctk.CTkFrame):
         self.dialog_table3.destroy()
 
     def delete_command_table3(self):
-
         delete = messagebox.askyesno("Bitte bestätigen",
                                      f"Sind Sie sicher, dass Sie den Mitarbeiter "
                                      f"{self.values_table3[0]} {self.values_table3[1]} löschen möchten?")
 
         if delete:
-            self.treeview_struktur.item(self.selected_table3, text="",
-                                        values=(self.vorname_table3.get(), self.nachname_table3.get(),
-                                                self.abteilung_table3.get(), self.vorgesetzter_table3.get()))
-
             cursor.execute(f'''DELETE FROM users WHERE vorname = "{self.vorname_table3.get()}"
                                AND nachname = "{self.nachname_table3.get()}"
                                AND abteilung = "{self.abteilung_table3.get()}"

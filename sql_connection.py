@@ -1,8 +1,12 @@
+import configparser
 import sqlite3
 
+config = configparser.ConfigParser()
+config.read("config.ini", encoding="utf-8")
+database = config['db']['db']
+
 try:
-    connection = sqlite3.connect('my_database.db')
+    connection = sqlite3.connect(database)
     cursor = connection.cursor()
-    print("connect")
 except sqlite3.Error as e:
-    print(f"Ошибка при подключении к базе данных: {e}")
+    print(f"Fehler bei Connect: {e}")

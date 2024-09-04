@@ -6,10 +6,6 @@ from third_frame import ThirdFrame
 from fourth_frame import FourthFrame
 
 
-def change_mode(mode):
-    ctk.set_appearance_mode(mode)
-
-
 class App(ctk.CTk):
 
     def __init__(self):
@@ -18,9 +14,10 @@ class App(ctk.CTk):
         # Fenster Größe und Position
         screen_width = self.winfo_screenwidth()
         screen_height = self.winfo_screenheight()
-        axe_x = (screen_width / 2) - (1400 / 2)  # 1410
+        axe_x = (screen_width / 2) - (1600 / 2)  # 1410
         axe_y = (screen_height / 2) - (1000 / 2)  # 1200
-        self.geometry(f"{1500}x{900}+{int(axe_x)}+{int(axe_y)}")  # 1500x1200
+        self.geometry(f"{1600}x{900}+{int(axe_x)}+{int(axe_y)}")  # 1500x1200
+        self.iconbitmap("images/argen.ico")
         self.grid_columnconfigure(0, weight=0)
         self.grid_columnconfigure(1, weight=2)
         self.grid_rowconfigure(0, weight=1)
@@ -78,7 +75,7 @@ class App(ctk.CTk):
         self.navi_button_4.grid(row=4, column=0, sticky="we")
 
         self.change_mode = ctk.CTkOptionMenu(self.navi_frame, corner_radius=7, values=["Dark", "Light"],
-                                             command=change_mode).grid(row=5, column=0, pady=20, sticky="s")
+                                             command=self.change_mode).grid(row=5, column=0, pady=20, sticky="s")
 
         self.first_menu = FirstFrame(self)
         self.second_menu = SecondFrame(self)
@@ -86,6 +83,9 @@ class App(ctk.CTk):
         self.fourth_menu = FourthFrame(self)
 
         self.select_frame_by_name("Button_1")
+
+    def change_mode(self, mode):
+        ctk.set_appearance_mode(mode)
 
     def first_frame_navi_button(self):
         self.select_frame_by_name("Button_1")
