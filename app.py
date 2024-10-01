@@ -7,7 +7,8 @@ from fourth_frame import FourthFrame
 
 
 class App(ctk.CTk):
-
+    """Datei app.py ist die Hauptdatei des Programms, in der die grafischen Elemente
+    und die funktionalen Umschaltungen zwischen den Frames konfiguriert werden"""
     def __init__(self):
         super().__init__()
 
@@ -85,8 +86,12 @@ class App(ctk.CTk):
         self.select_frame_by_name("Button_1")
 
     def change_mode(self, mode):
+
+        """Eine Funktion zum Umschalten des Farbschemas der Anwendung"""
+
         ctk.set_appearance_mode(mode)
 
+    """Eine Reihe von Funktionen zum Umschalten zwischen den Frames des Programms"""
     def first_frame_navi_button(self):
         self.select_frame_by_name("Button_1")
 
@@ -100,6 +105,7 @@ class App(ctk.CTk):
         self.select_frame_by_name("Button_4")
 
     def select_frame_by_name(self, name):
+        """Funktion zur Bestimmung, welcher Frame derzeit in unserem Programm angezeigt wird"""
         self.navi_button_1.configure(fg_color=("gray75", "gray25") if name == "Button_1" else "transparent")
         self.navi_button_2.configure(fg_color=("gray75", "gray25") if name == "Button_2" else "transparent")
         self.navi_button_3.configure(fg_color=("gray75", "gray25") if name == "Button_3" else "transparent")

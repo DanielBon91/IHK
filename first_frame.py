@@ -4,11 +4,11 @@ from datetime import date
 from PIL import Image
 from sql_connection import connection, cursor
 
-date_today = date.today().strftime("%d.%m.%Y")
+date_today = date.today().strftime("%d.%m.%Y")     #Formatierung des Datums für die zukünftige Verwendung
 
 
 class FirstFrame(ctk.CTkFrame):
-
+    """Der erste Frame des Programms"""
     def __init__(self, master):
         super().__init__(master, fg_color="transparent")
 

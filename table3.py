@@ -41,7 +41,7 @@ class Table3(ctk.CTkFrame):
         self.treeview_struktur.bind("<Double-1>", self.clicker_table_3)
 
     def third_table_funktion(self):
-
+        """Die Hauptfunktion zum Anordnen und Aktualisieren von Informationen zu der Tabelle in den Frame"""
         self.grid(row=1, column=0, sticky="nsew", columnspan=3)
         self.treeview_struktur.delete(*self.treeview_struktur.get_children())
         self.treeview_struktur.grid_forget()
@@ -58,7 +58,7 @@ class Table3(ctk.CTkFrame):
         self.sort_function("column1", self.treeview_struktur, False)
 
     def clicker_table_3(self, event):
-
+        """ein kleines Service-Fenster für weitere Änderungen der Werte erstellen"""
         self.dialog_table3 = ctk.CTkToplevel(self)
         self.dialog_table3.geometry("260x290+1200+450")
         self.dialog_table3.resizable(False, False)
@@ -104,6 +104,7 @@ class Table3(ctk.CTkFrame):
                                                   command=self.delete_command_table3).grid(row=6, column=1, pady=4)
 
     def enter_click(self, event):
+        """die Funktion self.update_record_table_2() wurde ausgelöst, als die Eingabetaste gedrückt wurde"""
         self.update_record_table_3()
 
     def update_record_table_3(self):
@@ -131,6 +132,7 @@ class Table3(ctk.CTkFrame):
         self.dialog_table3.destroy()
 
     def delete_command_table3(self):
+        """Funktion zur Änderung von Werten in der Datenbank und zur Anzeige in der Tabelle"""
         delete = messagebox.askyesno("Bitte bestätigen",
                                      f"Sind Sie sicher, dass Sie den Mitarbeiter "
                                      f"{self.values_table3[0]} {self.values_table3[1]} löschen möchten?")

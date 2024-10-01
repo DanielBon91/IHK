@@ -18,27 +18,28 @@ cursor = connection.cursor()
 #ll = [row for row in result]
 #print(ll)
 
+cursor.execute(f"""INSERT INTO Test2 (name, user_id)
+                  SELECT '{n}', 'Ali' FROM Test1
+                  WHERE name = '{n}'""")
+cursor.execute(f"""DELETE FROM Test1 WHERE name = '{n}'""")
+
+#CREATE TABLE Test2 (
+#    id INTEGER PRIMARY KEY,
+#    name TEXT,
+#    user_id INTEGER,
+#    FOREIGN KEY (user_id) REFERENCES Users(id) ON UPDATE CASCADE
+#);
+#""")
 
 #list_abteilung = cursor.execute('''SELECT vorname, nachname FROM users''')
 #l = [(i[0].lower() + ' ' + i[1]) for i in list_abteilung.fetchall()]
 #print(l)
-config = configparser.ConfigParser()
-config.read("config.ini", encoding='utf-8')
-
-werte_list = []
-for werte in config['wert']["werte"].split(','):
-    sub_list_wert = []
-    sub_list_wert.append(werte)
-    werte_list.append(sub_list_wert)
-
-
-# Выводим результат
-print(werte_list)
 
 #connection = sqlite3.connect('my_database.db')
 #cursor = connection.cursor()
 
-#cursor.execute(f'''CREATE TABLE abteilung_struktur (id INTEGER PRIMARY KEY, abteilung TEXT, vorgesetzer TEXT)''')
+#cursor.execute(f'''CREATE TABLE lager (id INTEGER PRIMARY KEY, artikel TEXT, hersteller
+#                    TEXT, model TEXT, sn TEXT, bemerkung TEXT, date TEXT)''')
 #cursor.execute(f'''INSERT INTO abteilung_struktur (abteilung, vorgesetzer) VALUES ("Alex", "Alex")''')
 
 #vorname = "Daniel"

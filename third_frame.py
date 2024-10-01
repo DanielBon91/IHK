@@ -5,7 +5,7 @@ from table3 import Table3
 
 
 class ThirdFrame(ctk.CTkFrame):
-
+    """Hier ist der dritte Frame des Programms, der drei interne Frames mit Tabellen enthält"""
     def __init__(self, master):
         super().__init__(master, fg_color="transparent")
         self.grid_columnconfigure((0, 1, 2), weight=1)
@@ -28,6 +28,7 @@ class ThirdFrame(ctk.CTkFrame):
         self.table_2_menu = Table2(self)
         self.table_3_menu = Table3(self)
 
+    """Eine Reihe von Funktionen zum Umschalten zwischen den Tabellen des Frames"""
     def table_1(self):
         self.select_table("Table_1")
 
@@ -38,6 +39,7 @@ class ThirdFrame(ctk.CTkFrame):
         self.select_table("Table_3")
 
     def select_table(self, table):
+        """Funktion zur Bestimmung, welche Tabelle derzeit in unserem Frame angezeigt wird"""
         self.third_frame_lager_button.configure(text_color=("black", "white"),
                                                 fg_color=("gray75", "gray25") if table == "Table_1" else "transparent")
         self.third_frame_inventar_button.configure(text_color=("black", "white"),

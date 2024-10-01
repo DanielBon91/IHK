@@ -9,7 +9,8 @@ date_today = date.today().strftime("%d.%m.%Y")
 
 
 class Table2(ctk.CTkFrame):
-
+    """Eine Datei mit der zweiten Tabelle, in der die Liste der Mitarbeiter
+    und das ihnen übergebene Eigentum der Firma angezeigt wird"""
     def __init__(self, master):
         super().__init__(master, fg_color="transparent")
 
@@ -67,6 +68,7 @@ class Table2(ctk.CTkFrame):
         self.search.bind("<KeyRelease>", self.search_funktion_event)
 
     def second_table_function(self):
+        """Die Hauptfunktion zum Anordnen und Aktualisieren von Informationen zu der Tabelle in den Frame"""
         self.grid(row=1, column=0, sticky="nsew", columnspan=3)
 
         self.treeview_inventar.delete(*self.treeview_inventar.get_children())
@@ -74,7 +76,8 @@ class Table2(ctk.CTkFrame):
 
         table2_values_sql = cursor.execute(f'''SELECT username, nachname, artikel, hersteller, model, sn, bemerkung 
                                                FROM inventur
-                                               WHERE username LIKE "%{self.search.get()}%"''')
+                                               WHERE username LIKE "%{self.search.get()}%" 
+                                               OR nachname LIKE "%{self.search.get()}%"''')
         table2_values_list = [row for row in table2_values_sql]
 
         for count, record in enumerate(table2_values_list):
@@ -90,7 +93,7 @@ class Table2(ctk.CTkFrame):
         self.second_table_function()
 
     def clicker_table_2(self, event):
-
+        """ein kleines Service-Fenster für weitere Änderungen der Werte erstellen"""
         self.dialog_table2 = ctk.CTkToplevel(self)
         self.dialog_table2.geometry("260x290+1200+450")
         self.dialog_table2.resizable(False, False)
@@ -141,9 +144,11 @@ class Table2(ctk.CTkFrame):
                                                                                               pady=(30, 4))
 
     def enter_click(self, event):
+        """die Funktion self.update_record_table_2() wurde ausgelöst, als die Eingabetaste gedrückt wurde"""
         self.update_record_table_2()
 
     def update_record_table_2(self):
+        """Funktion zur Änderung von Werten in der Datenbank und zur Anzeige in der Tabelle"""
         self.treeview_inventar.item(self.selected_table2,
                                     values=(self.values_table2[0], self.values_table2[1],
                                             self.artikel_table2.get(),
@@ -161,14 +166,13 @@ class Table2(ctk.CTkFrame):
                            AND hersteller = "{self.values_table2[3]}"
                            AND model = "{self.values_table2[4]}"
                            AND sn = "{self.values_table2[5]}"
-                           AND bemerkung = "{self.values_table2[6]}"
-                           ''')
+                           AND bemerkung = "{self.values_table2[6]}"''')
         connection.commit()
 
         self.dialog_table2.destroy()
 
     def return_function(self):
-
+        """Funktion zur Rückgabe von Waren vom Mitarbeiter an das Lager der Firma"""
         return_confirm = messagebox.askyesno("Bitte bestätigen", "Sind Sie sicher?")
 
         if return_confirm:
@@ -184,8 +188,7 @@ class Table2(ctk.CTkFrame):
                                    WHERE artikel = "{self.treeview_inventar.item(rows, 'values')[2]}" 
                                    AND hersteller = "{self.treeview_inventar.item(rows, 'values')[3]}"
                                    AND model = "{self.treeview_inventar.item(rows, 'values')[4]}"
-                                   AND sn = "{self.treeview_inventar.item(rows, 'values')[5]}"
-                                   ''')
+                                   AND sn = "{self.treeview_inventar.item(rows, 'values')[5]}"''')
 
                 cursor.execute(f'''DELETE FROM inventur 
                                    WHERE artikel = "{self.treeview_inventar.item(rows, 'values')[2]}" 

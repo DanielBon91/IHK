@@ -5,7 +5,7 @@ from sql_connection import connection, cursor
 
 
 class Table1(ctk.CTkFrame):
-
+    """Eine Datei mit der ersten Tabelle, in der das Eigentum der Firma angezeigt wird, das sich im Lager befindet"""
     def __init__(self, master):
         super().__init__(master, fg_color="transparent")
 
@@ -43,6 +43,7 @@ class Table1(ctk.CTkFrame):
         self.treeview_lager.bind("<Double-1>", self.clicker_table_1)
 
     def first_table_function(self):
+        """Die Hauptfunktion zum Anordnen und Aktualisieren von Informationen zu der Tabelle in den Frame"""
         self.grid(row=1, column=0, sticky="nsew", columnspan=3)
 
         self.treeview_lager.delete(*self.treeview_lager.get_children())
@@ -61,6 +62,7 @@ class Table1(ctk.CTkFrame):
         self.sort_function("column1", self.treeview_lager, False)
 
     def clicker_table_1(self, event):
+        """ein kleines Service-Fenster für weitere Änderungen der Werte erstellen"""
         self.dialog_table1 = ctk.CTkToplevel(self)
         self.dialog_table1.geometry(f"260x290+1200+450")
         self.dialog_table1.resizable(False, False)
@@ -117,9 +119,11 @@ class Table1(ctk.CTkFrame):
         self.delete_button_table1.grid(row=6, column=1, pady=4)
 
     def enter_click(self, event):
+        """die Funktion self.update_record_table_1() wurde ausgelöst, als die Eingabetaste gedrückt wurde"""
         self.update_record_table_1()
 
     def update_record_table_1(self):
+        """Funktion zur Änderung von Werten in der Datenbank und zur Anzeige in der Tabelle"""
         self.treeview_lager.item(self.selected_table1, text="",
                                  values=(self.artikel_table1.get(),
                                          self.hersteller_table1.get(),
@@ -141,6 +145,7 @@ class Table1(ctk.CTkFrame):
         self.dialog_table1.destroy()
 
     def delete_command_table1(self):
+        """Funktion zum Löschen von Werten aus der Datenbank und der Tabelle"""
         delete = messagebox.askyesno("Bitte bestätigen",
                                      f"Sind Sie sicher, dass Sie den Artikel "
                                      f"{self.values_table1[0]} {self.values_table1[1]} {self.values_table1[2]}"

@@ -8,9 +8,8 @@ from sql_connection import connection, cursor
 
 
 class SecondFrame(ctk.CTkFrame):
-
+    """Der zweite Frame des Programms"""
     def __init__(self, master):
-
         super().__init__(master, fg_color="transparent")
         self.grid_columnconfigure(0, weight=1)
         self.grid_rowconfigure(0, weight=1)
@@ -89,6 +88,7 @@ class SecondFrame(ctk.CTkFrame):
         self.empty_table.bind("<Double-1>", self.minus_click)
 
     def second_frame_lager_tabelle(self):
+        """Die Hauptfunktion zum Anordnen und Aktualisieren von Informationen zu den Tabellen in den Frames"""
         self.grid(row=0, column=1, sticky="nsew")
 
         self.lager_table.delete(*self.lager_table.get_children())
@@ -107,9 +107,11 @@ class SecondFrame(ctk.CTkFrame):
         self.sort_function("column1", self.lager_table, False)
 
     def plus_click(self, event):
+        """Funktion, die es ermöglicht, eine Zeile durch Doppelklick in die untere Tabelle hinzuzufügen"""
         self.plus_function()
 
     def plus_function(self):
+        """Funktion zum Hinzufügen von Werten zur unteren Tabelle"""
         if len(self.empty_table.get_children()) != 10:
             for rows in self.lager_table.selection():
                 self.empty_table.insert("", "end", values=(self.lager_table.item(rows, 'values')[0],
@@ -125,9 +127,12 @@ class SecondFrame(ctk.CTkFrame):
             self.zuweisen_button.configure(state="normal")
 
     def minus_click(self, event):
+        """Funktion, die es ermöglicht, eine Zeile durch Doppelklick aus der unteren Tabelle zu entfernen
+        und sie zurück in die obere Tabelle zu verschieben"""
         self.minus_function()
 
     def minus_function(self):
+        """Funktion zum Hinzufügen von Werten zur oberen Tabelle"""
         for rows in self.empty_table.selection():
             self.plus_button.configure(state="normal")
             self.lager_table.insert("", "end", values=(self.empty_table.item(rows, 'values')[0],
@@ -141,6 +146,8 @@ class SecondFrame(ctk.CTkFrame):
             self.zuweisen_button.configure(state="disabled")
 
     def abgabe_function(self):
+        """Funktion, die ein neues Fenster mit einer Benutzeroberfläche erstellt,
+        um das Eigentum des Unternehmens an einen Mitarbeiter zu übertragen"""
         self.dialog_mitarbeiter = ctk.CTkToplevel(self)
         self.dialog_mitarbeiter.title("Bitte auswählen")
         self.dialog_mitarbeiter.geometry("800x750+1030+250")
@@ -176,6 +183,8 @@ class SecondFrame(ctk.CTkFrame):
         self.dialog_mitarbeiter_box_nachname.set("Bitte auswählen")
 
     def vorwahl_nachname(self, vorname):
+        """Funktion, die den Wert "Vorname" aus der vorherigen Funktion annimmt
+        und eine Liste passender Nachnamen erstellt"""
         self.dialog_mitarbeiter_box_nachname.configure(state="normal")
         self.dialog_mitarbeiter_box_nachname.set("Bitte auswählen")
 
@@ -189,6 +198,8 @@ class SecondFrame(ctk.CTkFrame):
                                                            vorname, nachname_get))
 
     def confirm_function(self, vorname, nachname):
+        """Funktion, die eine letzte Überprüfung der Eingabedaten ermöglicht und eine korrekte Datumsangabe
+        für die Fortsetzung und Erstellung des Übergabeprotokolls erfordert"""
         ctk.CTkLabel(self.dialog_mitarbeiter, font=ctk.CTkFont(size=25, weight="bold"),
                      text=f"{vorname} {nachname} bekommt die Waren:").grid(row=2, column=0, padx=(50, 0), pady=(45, 15),
                                                                            columnspan=2, sticky="w")
@@ -223,12 +234,16 @@ class SecondFrame(ctk.CTkFrame):
         self.top_level_confirm_button.grid(row=15, column=0, columnspan=3, pady=45, sticky="s")
 
     def button_active(self, date):
+        """Funktion zur Überprüfung der Richtigkeit des eingegebenen Datums"""
         if len(date) == 10:
             self.top_level_confirm_button.configure(state="normal")
         else:
             pass
 
     def confirm_command(self, vorname, nachname, abteilung, chef, date):
+        """die Abschlussfunktion zur Eintragung aller Änderungen in die Datenbank sowie
+        zur Erstellung eines Dictionary für die Verwendung im Übergabeprotokoll"""
+        self.top_level_confirm_button.configure(state="disabled")
         abteilung_dict = {'name': vorname,
                           'nachname': nachname,
                           'abteilung': abteilung,
@@ -268,6 +283,7 @@ class SecondFrame(ctk.CTkFrame):
         self.empty_table.delete(*self.empty_table.get_children())
 
     def word_datei(self, abteilung_dict, vorname, nachname):
+        """Funktion, die es ermöglicht, ein Word-Dokument für das Übergabeprotokoll auszufüllen"""
         word_datei = DocxTemplate("default_protokoll.docx")
         word_datei.render(abteilung_dict)
 
@@ -293,6 +309,7 @@ class SecondFrame(ctk.CTkFrame):
         confirm_button.grid(row=16, column=0, columnspan=2)
 
     def open(self, end_word):
+        """Funktion zum Öffnen eines Word-Dokuments"""
         subprocess.Popen(['start', end_word], shell=True)
         self.dialog_mitarbeiter.destroy()
         self.zuweisen_button.configure(state="disabled")

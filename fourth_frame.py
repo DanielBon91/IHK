@@ -4,7 +4,7 @@ from sql_connection import connection, cursor
 
 
 class FourthFrame(ctk.CTkFrame):
-
+    """Der vierte Frame des Programms"""
     def __init__(self, master):
         super().__init__(master, fg_color="transparent")
 
@@ -51,9 +51,7 @@ class FourthFrame(ctk.CTkFrame):
         self.button_confirm.grid(row=5, column=1, columnspan=2, pady=(65, 0))
 
     def mitarbeiter_add(self, vorname, nachname, abteilung):
-
         """Neue Mitarbeiter hinzufügen"""
-
         abteilung_dict_sql = cursor.execute('''SELECT abteilung, vorgesetzer FROM abteilung_struktur''')
         vorgesetzter_dict = {value[0]: value[1] for value in abteilung_dict_sql.fetchall()}
 
