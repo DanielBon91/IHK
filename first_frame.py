@@ -57,11 +57,11 @@ class FirstFrame(ctk.CTkFrame):
         self.bemerkung_entry.grid(row=6, column=2, pady=15, sticky="we")
 
         # Buttons create
-        self.button_confirm = ctk.CTkButton(self, text="Confirm", corner_radius=7, height=75, width=265,
+        self.button_confirm = ctk.CTkButton(self, text="Hinzufügen", corner_radius=7, height=75, width=265,
                                             font=ctk.CTkFont("Calibri", size=34), hover_color="#5fad56",
                                             command=self.first_frame_writing_data)
         self.button_confirm.grid(row=7, column=2, pady=(55, 15))
-        self.button_clear = ctk.CTkButton(self, text="Clear all", corner_radius=7, height=45, width=210,
+        self.button_clear = ctk.CTkButton(self, text="Alle löschen", corner_radius=7, height=45, width=210,
                                           fg_color="gray", hover_color="#C52233",
                                           font=ctk.CTkFont("Calibri", size=14), command=self.first_frame_clear_all)
         self.button_clear.grid(row=8, column=2, pady=(55, 15))
@@ -105,17 +105,27 @@ class FirstFrame(ctk.CTkFrame):
     def first_frame_writing_data(self):
 
         """Diese Funktion öffnet die Datenbank und speichert die übermittelten Werte darin ab"""
+        def generator_nummer(num, prefix="INV", total_len=9):
+            num_str = str(num).zfill(total_len - len(prefix))
+            return f"{prefix}{num_str}"
 
         if len(self.artikel_entry.get()) > 0:
 
+            with open('number.txt', 'r') as file:
+                numbers = int(file.read())
+            number_more = numbers + 1
+            with open('number.txt', 'w') as file:
+                file.write(str(number_more))
+
             cursor.execute(f'''INSERT INTO 
-                               lager (artikel, hersteller, model, sn, bemerkung, date) 
+                               lager (artikel, hersteller, model, sn, bemerkung, date, inv_nr) 
                                VALUES ("{self.artikel_entry.get().capitalize().strip()}",
-                                       "{self.hersteller_entry.get().capitalize().capitalize().strip()}",
+                                       "{self.hersteller_entry.get().strip()}",
                                        "{self.model_entry.get().strip()}",
                                        "{str(self.sn_entry.get().strip())}",
                                        "{self.bemerkung_entry.get('0.0', 'end').strip()}",
-                                       "{self.datum_entry.get().strip()}")''')
+                                       "{self.datum_entry.get().strip()}",
+                                       "{generator_nummer(numbers)}")''')
 
             connection.commit()
 

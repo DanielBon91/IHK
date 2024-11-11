@@ -17,7 +17,7 @@ class App(ctk.CTk):
         screen_height = self.winfo_screenheight()
         axe_x = (screen_width / 2) - (1600 / 2)  # 1410
         axe_y = (screen_height / 2) - (1000 / 2)  # 1200
-        self.geometry(f"{1600}x{900}+{int(axe_x)}+{int(axe_y)}")  # 1500x1200
+        self.geometry(f"{1800}x{900}+{int(axe_x)}+{int(axe_y)}")  # 1500x1200
         self.iconbitmap("images/argen.ico")
         self.grid_columnconfigure(0, weight=0)
         self.grid_columnconfigure(1, weight=2)

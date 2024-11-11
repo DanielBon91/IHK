@@ -5,7 +5,9 @@ import subprocess
 from PIL import Image
 from docxtpl import DocxTemplate
 from sql_connection import connection, cursor
+from datetime import date
 
+date_today = date.today().strftime("%d.%m.%Y")
 
 class SecondFrame(ctk.CTkFrame):
     """Der zweite Frame des Programms"""
@@ -24,7 +26,8 @@ class SecondFrame(ctk.CTkFrame):
         self.word = ctk.CTkImage(Image.open("images/word.png"), size=(35, 35))
 
         # Erstellung der oberen Tabelle
-        self.lager_table = ctv.CustomTreeView(self, columns=("column1", "column2", "column3", "column4", "column5"))
+        self.lager_table = ctv.CustomTreeView(self, columns=("column1", "column2", "column3",
+                                                             "column4", "column5", "column6"))
         self.scrollbar_lager_table = ctk.CTkScrollbar(self, command=self.lager_table.yview)
         self.scrollbar_lager_table.grid(row=0, column=0, sticky="nse", padx=(0, 40), pady=(35, 20))
         self.lager_table.configure(yscrollcommand=self.scrollbar_lager_table.set)
@@ -39,6 +42,8 @@ class SecondFrame(ctk.CTkFrame):
                                  command=lambda: self.sort_function("column4", self.lager_table, False))
         self.lager_table.heading("column5", text="Bemerkung",
                                  command=lambda: self.sort_function("column5", self.lager_table, False))
+        self.lager_table.heading("column6", text="Inv_nr",
+                                 command=lambda: self.sort_function("column6", self.lager_table, False))
 
         self.lager_table.column("#0", width=0, minwidth=0, stretch=False)
         self.lager_table.column("column1", width=120)
@@ -46,11 +51,12 @@ class SecondFrame(ctk.CTkFrame):
         self.lager_table.column("column3")
         self.lager_table.column("column4")
         self.lager_table.column("column5")
+        self.lager_table.column("column6")
         self.lager_table.grid(row=0, column=0, sticky="nsew", pady=(35, 20), padx=40)
 
         # Erstellung der unteren Tabelle
         self.empty_table = ctv.CustomTreeView(self, height=10,
-                                              columns=("column1", "column2", "column3", "column4", "column5"))
+                                              columns=("column1", "column2", "column3", "column4", "column5", "column6"))
         self.empty_table.heading("#0", text="")
         self.empty_table.heading("column1", text="Artikel",
                                  command=lambda: self.sort_function("column1", self.empty_table, False))
@@ -62,6 +68,8 @@ class SecondFrame(ctk.CTkFrame):
                                  command=lambda: self.sort_function("column4", self.empty_table, False))
         self.empty_table.heading("column5", text="Bemerkung",
                                  command=lambda: self.sort_function("column5", self.empty_table, False))
+        self.empty_table.heading("column6", text="Inv",
+                                 command=lambda: self.sort_function("column6", self.empty_table, False))
 
         self.empty_table.column("#0", width=0, minwidth=0, stretch=False)
         self.empty_table.column("column1", width=120)
@@ -69,6 +77,7 @@ class SecondFrame(ctk.CTkFrame):
         self.empty_table.column("column3")
         self.empty_table.column("column4")
         self.empty_table.column("column5")
+        self.empty_table.column("column6")
         self.empty_table.grid(row=2, column=0, sticky="nsew", padx=40, pady=20)
 
         # Erstellung der Tasten
@@ -94,14 +103,14 @@ class SecondFrame(ctk.CTkFrame):
         self.lager_table.delete(*self.lager_table.get_children())
         self.lager_table.grid_forget()
 
-        lager_daten_sql = cursor.execute(f'''SELECT artikel, hersteller, model, sn, bemerkung 
+        lager_daten_sql = cursor.execute(f'''SELECT artikel, hersteller, model, sn, bemerkung, inv_nr
                                              FROM lager''')
         lager_daten_list = [row for row in lager_daten_sql]
 
         for count, record in enumerate(lager_daten_list):
             tag = "even" if count % 2 == 0 else "odd"
             self.lager_table.insert("", "end", iid=count, tags=tag,
-                                    values=(record[0], record[1], record[2], record[3], record[4]))
+                                    values=(record[0], record[1], record[2], record[3], record[4], record[5]))
 
         self.lager_table.grid(row=0, column=0, sticky="nsew", pady=(35, 20), padx=40)
         self.sort_function("column1", self.lager_table, False)
@@ -118,7 +127,8 @@ class SecondFrame(ctk.CTkFrame):
                                                            self.lager_table.item(rows, 'values')[1],
                                                            self.lager_table.item(rows, 'values')[2],
                                                            self.lager_table.item(rows, 'values')[3],
-                                                           self.lager_table.item(rows, 'values')[4]))
+                                                           self.lager_table.item(rows, 'values')[4],
+                                                           self.lager_table.item(rows, 'values')[5]))
                 self.lager_table.delete(self.lager_table.selection()[0])
         else:
             self.plus_button.configure(state="disabled")
@@ -139,7 +149,8 @@ class SecondFrame(ctk.CTkFrame):
                                                        self.empty_table.item(rows, 'values')[1],
                                                        self.empty_table.item(rows, 'values')[2],
                                                        self.empty_table.item(rows, 'values')[3],
-                                                       self.empty_table.item(rows, 'values')[4]))
+                                                       self.empty_table.item(rows, 'values')[4],
+                                                       self.empty_table.item(rows, 'values')[5]))
             self.empty_table.delete(self.empty_table.selection()[0])
 
         if len(self.empty_table.get_children()) == 0:
@@ -214,6 +225,7 @@ class SecondFrame(ctk.CTkFrame):
                                                                     padx=(60, 0), pady=20)
         self.data_entry = ctk.CTkEntry(self.dialog_mitarbeiter, height=35, placeholder_text="dd.mm.YYYY",
                                        font=ctk.CTkFont(size=19))
+        self.data_entry.insert(0, date_today)
         self.data_entry.grid(row=14, column=0, sticky="w", padx=(230, 0), pady=20, columnspan=3)
 
         self.data_get = ctk.CTkButton(self.dialog_mitarbeiter, width=45, text="", image=self.image_pfeil,
@@ -254,22 +266,18 @@ class SecondFrame(ctk.CTkFrame):
             model = self.empty_table.item(value)['values'][2]
             seriennummer = self.empty_table.item(value)['values'][3]
             bemerkung = self.empty_table.item(value)['values'][4]
+            inv_nr = self.empty_table.item(value)['values'][5]
 
             cursor.execute(f'''INSERT INTO 
-                               inventur (username, nachname, artikel, hersteller, model, sn, bemerkung, date)
+                               inventur (username, nachname, artikel, hersteller, model, sn, bemerkung, date, inv_nr)
                                SELECT "{vorname}", "{nachname}", "{artikel}", 
-                               "{hersteller}", "{str(model)}", "{str(seriennummer)}", "{str(bemerkung)}", "{str(date)}"
+                               "{hersteller}", "{str(model)}", "{str(seriennummer)}", "{str(bemerkung)}", 
+                               "{str(date)}", "{inv_nr}"
                                FROM lager
-                               WHERE artikel = "{artikel}" 
-                               AND hersteller = "{hersteller}" 
-                               AND model = "{str(model)}" 
-                               AND sn = "{str(seriennummer)}"''')
+                               WHERE inv_nr = "{inv_nr}"''')
 
             cursor.execute(f'''DELETE FROM lager 
-                               WHERE artikel = "{artikel}" 
-                               AND hersteller = "{hersteller}" 
-                               AND model = "{str(model)}" 
-                               AND sn = "{str(seriennummer)}"''')
+                               WHERE inv_nr = "{inv_nr}"''')
             connection.commit()
 
         for num, rows in enumerate(self.empty_table.get_children()):

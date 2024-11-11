@@ -5,7 +5,7 @@ from sql_connection import connection, cursor
 
 
 class Table3(ctk.CTkFrame):
-
+    """Eine Datei mit der dritten Tabelle, in der Informationen über die Mitarbeiter gesammelt sind"""
     def __init__(self, master):
         super().__init__(master, fg_color="transparent")
         self.grid_columnconfigure(0, weight=1)

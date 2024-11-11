@@ -22,7 +22,7 @@ class Table2(ctk.CTkFrame):
         self.image_return = ctk.CTkImage(Image.open("images/return.png"), size=(35, 35))
 
         self.treeview_inventar = ctv.CustomTreeView(self, columns=(
-            "column1", "column2", "column3", "column4", "column5", "column6", "column7"))
+            "column1", "column2", "column3", "column4", "column5", "column6", "column7", "column8"))
 
         self.tree_scroll_invent = ctk.CTkScrollbar(self, command=self.treeview_inventar.yview)
         self.tree_scroll_invent.grid(row=0, column=0, sticky="nse", padx=(0, 40), pady=(35, 20))
@@ -44,6 +44,8 @@ class Table2(ctk.CTkFrame):
                                        command=lambda: self.sort_function("column6", self.treeview_inventar, False))
         self.treeview_inventar.heading("column7", text="Bemerkung",
                                        command=lambda: self.sort_function("column7", self.treeview_inventar, False))
+        self.treeview_inventar.heading("column8", text="Inventarnummer",
+                                       command=lambda: self.sort_function("column8", self.treeview_inventar, False))
 
         self.treeview_inventar.column("#0", width=0, minwidth=0, stretch=False)
         self.treeview_inventar.column("column1", width=130)
@@ -53,6 +55,7 @@ class Table2(ctk.CTkFrame):
         self.treeview_inventar.column("column5", width=190)
         self.treeview_inventar.column("column6", width=169)
         self.treeview_inventar.column("column7", width=190)
+        self.treeview_inventar.column("column8", width=190)
 
         self.treeview_inventar.bind("<Double-1>", self.clicker_table_2)
 
@@ -74,7 +77,7 @@ class Table2(ctk.CTkFrame):
         self.treeview_inventar.delete(*self.treeview_inventar.get_children())
         self.treeview_inventar.grid_forget()
 
-        table2_values_sql = cursor.execute(f'''SELECT username, nachname, artikel, hersteller, model, sn, bemerkung 
+        table2_values_sql = cursor.execute(f'''SELECT username, nachname, artikel, hersteller, model, sn, bemerkung, inv_nr 
                                                FROM inventur
                                                WHERE username LIKE "%{self.search.get()}%" 
                                                OR nachname LIKE "%{self.search.get()}%"''')
@@ -84,7 +87,7 @@ class Table2(ctk.CTkFrame):
             tag = "even" if count % 2 == 0 else "odd"
             self.treeview_inventar.insert("", "end", iid=count, tags=tag,
                                           values=(record[0], record[1], record[2], record[3], record[4], record[5],
-                                                  record[6]))
+                                                  record[6], record[7]))
 
         self.treeview_inventar.grid(row=0, column=0, sticky="nsew", pady=(35, 20), padx=40)
         self.sort_function("column1", self.treeview_inventar, False)
@@ -95,22 +98,24 @@ class Table2(ctk.CTkFrame):
     def clicker_table_2(self, event):
         """ein kleines Service-Fenster für weitere Änderungen der Werte erstellen"""
         self.dialog_table2 = ctk.CTkToplevel(self)
-        self.dialog_table2.geometry("260x290+1200+450")
+        self.dialog_table2.geometry("260x310+1200+450")
         self.dialog_table2.resizable(False, False)
         self.dialog_table2.grab_set()
         self.dialog_table2.grid_columnconfigure(0, weight=1)
         self.dialog_table2.grid_columnconfigure(1, weight=1)
 
-        self.artikel_table2_label = ctk.CTkLabel(self.dialog_table2, text="Artikel").grid(row=0, column=0, pady=(16, 4),
-                                                                                          sticky="e")
-        self.hersteller_table2_label = ctk.CTkLabel(self.dialog_table2, text="Hersteller").grid(row=1, column=0, pady=4,
-                                                                                                sticky="e")
-        self.model_table2_label = ctk.CTkLabel(self.dialog_table2, text="Model").grid(row=2, column=0, pady=4,
-                                                                                      sticky="e")
-        self.sn_table2_label = ctk.CTkLabel(self.dialog_table2, text="Seriennummer").grid(row=3, column=0, pady=4,
-                                                                                          sticky="e")
-        self.bemerkung_table2_label = ctk.CTkLabel(self.dialog_table2, text="Bemerkung").grid(row=4, column=0, pady=4,
-                                                                                              sticky="e")
+        self.artikel_table2_label = ctk.CTkLabel(self.dialog_table2,
+                                                 text="Artikel").grid(row=0, column=0, pady=(16, 4), sticky="e")
+        self.hersteller_table2_label = ctk.CTkLabel(self.dialog_table2,
+                                                    text="Hersteller").grid(row=1, column=0, pady=4, sticky="e")
+        self.model_table2_label = ctk.CTkLabel(self.dialog_table2,
+                                               text="Model").grid(row=2, column=0, pady=4, sticky="e")
+        self.sn_table2_label = ctk.CTkLabel(self.dialog_table2,
+                                            text="Seriennummer").grid(row=3, column=0, pady=4, sticky="e")
+        self.bemerkung_table2_label = ctk.CTkLabel(self.dialog_table2,
+                                                   text="Bemerkung").grid(row=4, column=0, pady=4, sticky="e")
+        self.inv_nr_table2_label = ctk.CTkLabel(self.dialog_table2, text="Inventurnummer")
+        self.inv_nr_table2_label.grid(row=5, column=0, pady=4, sticky="e")
 
         self.artikel_table2 = ctk.CTkEntry(self.dialog_table2)
         self.artikel_table2.grid(row=0, column=1, pady=(16, 4))
@@ -122,6 +127,8 @@ class Table2(ctk.CTkFrame):
         self.sn_table2.grid(row=3, column=1, pady=4)
         self.bemerkung_table2 = ctk.CTkEntry(self.dialog_table2)
         self.bemerkung_table2.grid(row=4, column=1, pady=4)
+        self.inv_nr_table2 = ctk.CTkLabel(self.dialog_table2, font=ctk.CTkFont(weight="bold"))
+        self.inv_nr_table2.grid(row=5, column=1, pady=4)
 
         self.artikel_table2.bind("<Return>", self.enter_click)
         self.hersteller_table2.bind("<Return>", self.enter_click)
@@ -139,8 +146,9 @@ class Table2(ctk.CTkFrame):
         self.model_table2.insert(0, self.values_table2[4])
         self.sn_table2.insert(0, self.values_table2[5])
         self.bemerkung_table2.insert(0, self.values_table2[6])
+        self.inv_nr_table2.configure(text=self.values_table2[7].strip())
 
-        ctk.CTkButton(self.dialog_table2, text="OK", command=self.update_record_table_2).grid(row=5, column=1,
+        ctk.CTkButton(self.dialog_table2, text="OK", command=self.update_record_table_2).grid(row=6, column=1,
                                                                                               pady=(30, 4))
 
     def enter_click(self, event):
@@ -155,18 +163,15 @@ class Table2(ctk.CTkFrame):
                                             self.hersteller_table2.get(),
                                             self.model_table2.get(),
                                             self.sn_table2.get(),
-                                            self.bemerkung_table2.get()))
+                                            self.bemerkung_table2.get(),
+                                            self.values_table2[7].strip()))
 
         cursor.execute(f'''UPDATE inventur SET artikel = "{self.artikel_table2.get()}",
                            hersteller = "{self.hersteller_table2.get()}",
                            model = "{self.model_table2.get()}",
                            sn = "{self.sn_table2.get()}",
                            bemerkung = "{self.bemerkung_table2.get()}"
-                           WHERE artikel = "{self.values_table2[2]}"
-                           AND hersteller = "{self.values_table2[3]}"
-                           AND model = "{self.values_table2[4]}"
-                           AND sn = "{self.values_table2[5]}"
-                           AND bemerkung = "{self.values_table2[6]}"''')
+                           WHERE inv_nr = "{self.values_table2[7].strip()}"''')
         connection.commit()
 
         self.dialog_table2.destroy()
@@ -177,24 +182,19 @@ class Table2(ctk.CTkFrame):
 
         if return_confirm:
             for rows in self.treeview_inventar.selection():
-                cursor.execute(f'''INSERT INTO lager (artikel, hersteller, model, sn, bemerkung, date)
+                cursor.execute(f'''INSERT INTO lager (artikel, hersteller, model, sn, bemerkung, date, inv_nr)
                                    SELECT "{self.treeview_inventar.item(rows, 'values')[2]}",
                                           "{self.treeview_inventar.item(rows, 'values')[3]}",
                                           "{self.treeview_inventar.item(rows, 'values')[4]}",
                                           "{self.treeview_inventar.item(rows, 'values')[5]}",
                                           "{self.treeview_inventar.item(rows, 'values')[6]}",
-                                          "{date_today}"
+                                          "{date_today}",
+                                          "{self.treeview_inventar.item(rows, 'values')[7]}"
                                    FROM inventur
-                                   WHERE artikel = "{self.treeview_inventar.item(rows, 'values')[2]}" 
-                                   AND hersteller = "{self.treeview_inventar.item(rows, 'values')[3]}"
-                                   AND model = "{self.treeview_inventar.item(rows, 'values')[4]}"
-                                   AND sn = "{self.treeview_inventar.item(rows, 'values')[5]}"''')
+                                   WHERE inv_nr = "{self.treeview_inventar.item(rows, 'values')[7]}"''')
 
                 cursor.execute(f'''DELETE FROM inventur 
-                                   WHERE artikel = "{self.treeview_inventar.item(rows, 'values')[2]}" 
-                                   AND hersteller = "{self.treeview_inventar.item(rows, 'values')[3]}"
-                                   AND model = "{self.treeview_inventar.item(rows, 'values')[4]}"
-                                   AND sn = "{self.treeview_inventar.item(rows, 'values')[5]}"''')
+                                   WHERE inv_nr = "{self.treeview_inventar.item(rows, 'values')[7]}"''')
                 connection.commit()
 
         else:
